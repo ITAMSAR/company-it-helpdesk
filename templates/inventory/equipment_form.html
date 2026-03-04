@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Form Peralatan - IT Hub Internal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">{% if object %}Edit{% else %}Tambah{% endif %} Peralatan</h2>
+
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Error!</strong> Ada kesalahan pada form:
+    <ul class="mb-0 mt-2">
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Barang</label>
+                    <input type="text" name="name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                           value="{{ form.name.value|default:'' }}" required>
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kode Inventaris</label>
+                    <input type="text" name="inventory_code" class="form-control {% if form.inventory_code.errors %}is-invalid{% endif %}" 
+                           value="{{ form.inventory_code.value|default:'' }}" required>
+                    {% if form.inventory_code.errors %}
+                    <div class="invalid-feedback">{{ form.inventory_code.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="category" class="form-select {% if form.category.errors %}is-invalid{% endif %}" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if form.category.value == cat.id or object.category.id == cat.id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.category.errors %}
+                    <div class="invalid-feedback">{{ form.category.errors.0 }}</div>
+                    {% else %}
+                    <small class="text-muted">
+                        Belum ada kategori? <a href="{% url 'inventory:category_add' %}" target="_blank">Tambah kategori baru</a>
+                    </small>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select {% if form.status.errors %}is-invalid{% endif %}" required>
+                        <option value="available" {% if form.status.value == 'available' or object.status == 'available' %}selected{% endif %}>Tersedia</option>
+                        <option value="borrowed" {% if form.status.value == 'borrowed' or object.status == 'borrowed' %}selected{% endif %}>Dipinjam</option>
+                        <option value="broken" {% if form.status.value == 'broken' or object.status == 'broken' %}selected{% endif %}>Rusak</option>
+                        <option value="service" {% if form.status.value == 'service' or object.status == 'service' %}selected{% endif %}>Servis</option>
+                    </select>
+                    {% if form.status.errors %}
+                    <div class="invalid-feedback">{{ form.status.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Pengguna Saat Ini (Opsional)</label>
+                <input type="text" name="current_user" class="form-control" 
+                       value="{{ form.current_user.value|default:'' }}" 
+                       placeholder="Contoh: John Doe, Tim Marketing, dll">
+                <small class="text-muted">Isi nama orang/tim yang sedang memakai peralatan ini</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Spesifikasi</label>
+                <textarea name="specifications" class="form-control" rows="3" 
+                          placeholder="Contoh: Intel Core i5, RAM 8GB, SSD 256GB">{{ form.specifications.value|default:'' }}</textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tanggal Pembelian</label>
+                    <input type="date" name="purchase_date" class="form-control" 
+                           value="{{ form.purchase_date.value|default:'' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Garansi Sampai</label>
+                    <input type="date" name="warranty_until" class="form-control" 
+                           value="{{ form.warranty_until.value|default:'' }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Simpan
+            </button>
+            <a href="{% url 'inventory:equipment_list' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Batal
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - IT Hub Internal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .logout-container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+        }
+        .logout-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .logout-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 50px 30px;
+            text-align: center;
+        }
+        .logout-header i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: checkmark 0.6s ease-out;
+        }
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .logout-header h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 28px;
+        }
+        .logout-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .logout-body {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logout-body p {
+            color: #6c757d;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+        .btn-login-again {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-login-again:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .logout-footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="logout-card">
+            <div class="logout-header">
+                <i class="bi bi-check-circle-fill"></i>
+                <h3>Logout Berhasil!</h3>
+                <p>Anda telah keluar dari sistem</p>
+            </div>
+            <div class="logout-body">
+                <p>
+                    <i class="bi bi-shield-check text-success me-2"></i>
+                    Sesi Anda telah berakhir dengan aman.<br>
+                    Terima kasih telah menggunakan IT Hub Internal.
+                </p>
+                <a href="{% url 'login' %}" class="btn-login-again">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Login Kembali
+                </a>
+            </div>
+            <div class="logout-footer">
+                <i class="bi bi-shield-check"></i> IT Hub Internal © 2026
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

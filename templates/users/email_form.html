@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Tambah{% endif %} Email - IT Hub Internal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">{% if object %}Edit{% else %}Tambah{% endif %} Email Karyawan</h2>
+
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Error!</strong> Ada kesalahan pada form:
+    <ul class="mb-0 mt-2">
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Lengkap</label>
+                    <input type="text" name="full_name" class="form-control {% if form.full_name.errors %}is-invalid{% endif %}" 
+                           value="{{ form.full_name.value|default:'' }}" required>
+                    {% if form.full_name.errors %}
+                    <div class="invalid-feedback">{{ form.full_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">NIK/ID Karyawan</label>
+                    <input type="text" name="employee_id" class="form-control {% if form.employee_id.errors %}is-invalid{% endif %}" 
+                           value="{{ form.employee_id.value|default:'' }}" required>
+                    {% if form.employee_id.errors %}
+                    <div class="invalid-feedback">{{ form.employee_id.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email Utama</label>
+                    <input type="email" name="primary_email" class="form-control {% if form.primary_email.errors %}is-invalid{% endif %}" 
+                           value="{{ form.primary_email.value|default:'' }}" required>
+                    {% if form.primary_email.errors %}
+                    <div class="invalid-feedback">{{ form.primary_email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Password Email</label>
+                    <input type="text" name="email_password" class="form-control {% if form.email_password.errors %}is-invalid{% endif %}" 
+                           value="{{ form.email_password.value|default:'' }}" placeholder="Masukkan password email">
+                    <small class="text-muted">Password akan disimpan sebagai text biasa untuk keperluan recovery</small>
+                    {% if form.email_password.errors %}
+                    <div class="invalid-feedback">{{ form.email_password.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Recovery Email (Opsional)</label>
+                    <input type="email" name="recovery_email" class="form-control" 
+                           value="{{ form.recovery_email.value|default:'' }}" 
+                           placeholder="email.recovery@example.com">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Recovery Phone (Opsional)</label>
+                    <input type="text" name="recovery_phone" class="form-control" 
+                           value="{{ form.recovery_phone.value|default:'' }}" 
+                           placeholder="08123456789">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="is_active" class="form-select" required>
+                    <option value="True" {% if form.is_active.value or form.is_active.value == None %}selected{% endif %}>Aktif</option>
+                    <option value="False" {% if form.is_active.value == False %}selected{% endif %}>Nonaktif</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Simpan
+            </button>
+            <a href="{% url 'users:email_list' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Batal
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

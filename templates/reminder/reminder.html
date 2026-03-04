@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Reminder Jaringan - IT Hub Internal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Reminder Pengecekan Jaringan</h2>
+
+<div class="alert alert-warning">
+    <h5><i class="bi bi-exclamation-triangle"></i> Jangan lupa cek jaringan internet hari ini!</h5>
+    <p class="mb-0">Pastikan semua koneksi berjalan dengan baik.</p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5>Tandai Sudah Cek</h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Catatan (Opsional)</label>
+                <textarea name="notes" class="form-control" rows="3" placeholder="Tambahkan catatan jika ada..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Saya Sudah Cek
+            </button>
+        </form>
+    </div>
+</div>
+
+<h4 class="mb-3">Riwayat Pengecekan</h4>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Dicek Oleh</th>
+                <th>Waktu</th>
+                <th>Catatan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.checked_by.username }}</td>
+                <td>{{ log.checked_at|date:"d M Y H:i" }}</td>
+                <td>{{ log.notes|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center">Belum ada riwayat</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

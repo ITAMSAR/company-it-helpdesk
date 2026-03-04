@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Manajemen Email - IT Hub Internal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manajemen Email Karyawan</h2>
+    <a href="{% url 'users:email_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Email
+    </a>
+</div>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-8">
+        <input type="text" name="search" class="form-control" placeholder="Cari nama, email, atau NIK..." value="{{ request.GET.search }}">
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">Semua Status</option>
+            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Aktif</option>
+            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Nonaktif</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Filter</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nama Lengkap</th>
+                <th>NIK</th>
+                <th>Email Utama</th>
+                <th>Recovery Email</th>
+                <th>Recovery Phone</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+            <tr>
+                <td>{{ email.full_name }}</td>
+                <td>{{ email.employee_id }}</td>
+                <td>{{ email.primary_email }}</td>
+                <td>{{ email.recovery_email|default:"-" }}</td>
+                <td>{{ email.recovery_phone|default:"-" }}</td>
+                <td>
+                    {% if email.is_active %}
+                    <span class="badge bg-success">Aktif</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Nonaktif</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'users:email_edit' email.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'users:email_delete' email.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center">Belum ada data email</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

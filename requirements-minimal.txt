@@ -1,0 +1,10 @@
+# Requirements untuk Python 3.8 - 3.14
+# Versi yang lebih fleksibel dan kompatibel
+
+Django>=5.0,<5.1
+Pillow>=10.3.0
+django-crontab>=0.7.1
+python-decouple>=3.8
+
+# Optional: Untuk production dengan PostgreSQL
+# psycopg2-binary>=2.9.9

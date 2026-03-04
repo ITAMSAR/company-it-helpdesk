@@ -1,0 +1,57 @@
+/* Custom styles for IT Hub Internal */
+
+:root {
+    --sidebar-bg: #212529;
+    --sidebar-hover: #495057;
+    --primary-color: #0d6efd;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.main-content {
+    margin-left: 16.66667%;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.table {
+    background: white;
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+}

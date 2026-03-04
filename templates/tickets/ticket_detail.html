@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Tiket - IT Hub Internal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Detail Tiket</h2>
+    <a href="{% url 'tickets:ticket_list' %}" class="btn btn-secondary">Kembali</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h4>{{ ticket.title }}</h4>
+        <hr>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Pelapor:</strong> {{ ticket.reporter.username }}</p>
+                <p><strong>Prioritas:</strong> 
+                    {% if ticket.priority == 'urgent' %}
+                    <span class="badge bg-danger">{{ ticket.get_priority_display }}</span>
+                    {% elif ticket.priority == 'high' %}
+                    <span class="badge bg-warning">{{ ticket.get_priority_display }}</span>
+                    {% else %}
+                    <span class="badge bg-info">{{ ticket.get_priority_display }}</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Status:</strong> <span class="badge bg-secondary">{{ ticket.get_status_display }}</span></p>
+                <p><strong>Tanggal Dibuat:</strong> {{ ticket.created_at|date:"d M Y H:i" }}</p>
+            </div>
+        </div>
+        <div class="mb-3">
+            <strong>Deskripsi:</strong>
+            <p class="mt-2">{{ ticket.description }}</p>
+        </div>
+        {% if ticket.attachment %}
+        <div class="mb-3">
+            <strong>Lampiran:</strong><br>
+            <a href="{{ ticket.attachment.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="bi bi-download"></i> Download Lampiran
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

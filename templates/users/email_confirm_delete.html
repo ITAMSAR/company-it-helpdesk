@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Hapus Email - IT Hub Internal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Konfirmasi Hapus Email</h2>
+
+<div class="card">
+    <div class="card-body">
+        <p>Apakah Anda yakin ingin menghapus email karyawan:</p>
+        <p><strong>{{ object.full_name }} ({{ object.primary_email }})</strong></p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+            <a href="{% url 'users:email_list' %}" class="btn btn-secondary">Batal</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
