@@ -30,7 +30,11 @@
                 <td>{{ category.created_at|date:"d M Y" }}</td>
                 <td>
                     <a href="{% url 'inventory:category_edit' category.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <a href="{% url 'inventory:category_delete' category.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
+                            data-item-name="{{ category.name }}"
+                            data-delete-url="{% url 'inventory:category_delete' category.pk %}">
+                        Hapus
+                    </button>
                 </td>
             </tr>
             {% empty %}

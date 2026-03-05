@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "skills": {
+    "backend-development": {
+      "source": "mrgoonie/claudekit-skills",
+      "sourceType": "github",
+      "computedHash": "dedbc6bb7afa2c16ac6b3451a435a198af0e5d3786b30a15d40910ba207fd6e3"
+    },
+    "canvas-design": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "1e9e411e82d78323b0956c9db0f6b82e786c506d6c47eb180081a06d930048bd"
+    },
+    "code-documentation": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "167725f858896b9caf79ce6b150c4639a6800a8bc5ea3f3cd4656447ae6a153d"
+    },
+    "code-refactoring": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "57cb5564d22aa6461fde3952af5c9d1605ab14beca06ed608cfa17a25fbffc06"
+    },
+    "code-review": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "cc4eecca4162bab4fa9c528c5f3faa089cc6caf7a9805bac95263c39a5471eae"
+    },
+    "database-design": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "176143c0ecb29df9e7220086c466b516ffc732031846b428aea53709f8ffa403"
+    },
+    "frontend-design": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "bd08bd2600b91b5192846b34e813a6dba08c077149dfba379974cfa70a1e9df1"
+    },
+    "python-development": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "2a62fdc53d9dad764ec40ebfbe6b1f0aa1f1156b671dfdc3a7734e620947e348"
+    },
+    "web-design-guidelines": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "356ac2e8775def8b4c5970eb4ecc1e803c15ef91230425824dc9f00aa781efc3"
+    },
+    "webapp-testing": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "9372ce95ac1e32b6db4e6c69789113a911eeb55bc5220def200f1511562d1a34"
+    },
+    "xlsx": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "30fefadf2988dd01b22c47a8d8b63fc7b0810477676ebebc15fc97252a5f02d4"
+    }
+  }
+}

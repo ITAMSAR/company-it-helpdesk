@@ -7,115 +7,169 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f7fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .login-container {
-            max-width: 450px;
-            width: 100%;
             padding: 20px;
         }
+        
+        .login-container {
+            max-width: 420px;
+            width: 100%;
+        }
+        
         .login-card {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
             overflow: hidden;
-            animation: slideUp 0.5s ease-out;
+            animation: fadeIn 0.4s ease-out;
         }
-        @keyframes slideUp {
+        
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+        
         .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
+            padding: 40px 40px 30px;
             text-align: center;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .login-header i {
-            font-size: 60px;
-            margin-bottom: 15px;
-            animation: pulse 2s infinite;
+        
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: #2c3e50;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        
+        .logo-icon i {
+            font-size: 32px;
+            color: white;
         }
+        
         .login-header h3 {
-            margin: 0;
+            margin: 0 0 8px 0;
             font-weight: 600;
-            font-size: 28px;
+            font-size: 24px;
+            color: #2c3e50;
         }
+        
         .login-header p {
-            margin: 10px 0 0 0;
-            opacity: 0.9;
+            margin: 0;
+            color: #6c757d;
             font-size: 14px;
         }
+        
         .login-body {
-            padding: 40px 30px;
+            padding: 40px;
         }
+        
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
         .form-control {
-            border-radius: 10px;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s;
+            border-radius: 8px;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+            font-size: 14px;
         }
+        
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #2c3e50;
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+            outline: none;
         }
-        .input-group-text {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-right: none;
-            border-radius: 10px 0 0 10px;
+        
+        .form-control::placeholder {
+            color: #adb5bd;
         }
-        .input-group .form-control {
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-        }
+        
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2c3e50;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 12px;
-            font-weight: 600;
+            font-weight: 500;
             color: white;
-            transition: all 0.3s;
+            transition: all 0.2s;
             width: 100%;
+            font-size: 15px;
         }
+        
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            background: #34495e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
             color: white;
         }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
         .alert {
-            border-radius: 10px;
+            border-radius: 8px;
             border: none;
-            animation: shake 0.5s;
+            padding: 12px 16px;
+            font-size: 14px;
         }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+        
+        .alert-danger {
+            background: #fee;
+            color: #c33;
         }
+        
         .login-footer {
             text-align: center;
             padding: 20px;
-            background: #f8f9fa;
+            background: #fafbfc;
             color: #6c757d;
             font-size: 13px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .input-icon {
+            position: relative;
+        }
+        
+        .input-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 16px;
+        }
+        
+        .input-icon .form-control {
+            padding-left: 44px;
         }
     </style>
 </head>
@@ -123,25 +177,27 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <i class="bi bi-shield-lock"></i>
+                <div class="logo-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
                 <h3>IT Hub Internal</h3>
                 <p>Dashboard Manajemen IT</p>
             </div>
+            
             <div class="login-body">
                 <form method="post">
                     {% csrf_token %}
                     
                     {% if form.errors %}
-                    <div class="alert alert-danger d-flex align-items-center" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <div>Username atau password salah. Silakan coba lagi.</div>
+                    <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        <div>Username atau password salah</div>
                     </div>
                     {% endif %}
                     
                     {% if messages %}
                         {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            <i class="bi bi-check-circle-fill me-2"></i>
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
                             {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -149,39 +205,31 @@
                     {% endif %}
                     
                     <div class="mb-3">
-                        <label for="username" class="form-label">
-                            <i class="bi bi-person-fill"></i> Username
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-person"></i>
-                            </span>
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-icon">
+                            <i class="bi bi-person"></i>
                             <input type="text" class="form-control" id="username" name="username" 
                                    placeholder="Masukkan username" required autofocus>
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock-fill"></i> Password
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-lock"></i>
-                            </span>
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-icon">
+                            <i class="bi bi-lock"></i>
                             <input type="password" class="form-control" id="password" name="password" 
                                    placeholder="Masukkan password" required>
                         </div>
                     </div>
                     
                     <button type="submit" class="btn btn-login">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
                         Login
                     </button>
                 </form>
             </div>
+            
             <div class="login-footer">
-                <i class="bi bi-shield-check"></i> Secure Login • IT Hub Internal © 2026
+                IT Hub Internal © 2026
             </div>
         </div>
     </div>

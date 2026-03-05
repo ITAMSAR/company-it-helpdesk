@@ -68,7 +68,11 @@
                 <td>
                     {% if user.is_staff %}
                     <a href="{% url 'inventory:equipment_edit' equipment.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <a href="{% url 'inventory:equipment_delete' equipment.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
+                            data-item-name="{{ equipment.name }}"
+                            data-delete-url="{% url 'inventory:equipment_delete' equipment.pk %}">
+                        Hapus
+                    </button>
                     {% endif %}
                 </td>
             </tr>

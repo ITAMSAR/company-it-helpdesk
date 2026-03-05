@@ -30,11 +30,31 @@ class DashboardView(LoginRequiredMixin, ListView):
         return Ticket.objects.filter(reporter=self.request.user)[:5]
     
     def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        from django.db.models import Count
         context = super().get_context_data(**kwargs)
+        context['today'] = timezone.now()
         if self.request.user.is_staff:
+            # Total counts
             context['total_users'] = EmployeeEmail.objects.count()
             context['total_equipment'] = Equipment.objects.count()
             context['pending_tickets'] = Ticket.objects.filter(status='new').count()
+            
+            # Email status breakdown
+            context['email_active'] = EmployeeEmail.objects.filter(is_active=True).count()
+            context['email_inactive'] = EmployeeEmail.objects.filter(is_active=False).count()
+            
+            # Equipment status breakdown
+            context['equipment_available'] = Equipment.objects.filter(status='available').count()
+            context['equipment_borrowed'] = Equipment.objects.filter(status='borrowed').count()
+            context['equipment_broken'] = Equipment.objects.filter(status='broken').count()
+            context['equipment_service'] = Equipment.objects.filter(status='service').count()
+            
+            # Ticket status breakdown
+            context['ticket_new'] = Ticket.objects.filter(status='new').count()
+            context['ticket_in_progress'] = Ticket.objects.filter(status='in_progress').count()
+            context['ticket_completed'] = Ticket.objects.filter(status='completed').count()
+            context['ticket_cancelled'] = Ticket.objects.filter(status='cancelled').count()
         else:
             context['my_tickets'] = Ticket.objects.filter(reporter=self.request.user).count()
         return context

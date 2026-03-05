@@ -76,7 +76,11 @@
                 <td>
                     <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="btn btn-sm btn-info">Detail</a>
                     {% if user.is_staff %}
-                    <a href="{% url 'tickets:ticket_delete' ticket.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
+                            data-item-name="{{ ticket.title }}"
+                            data-delete-url="{% url 'tickets:ticket_delete' ticket.pk %}">
+                        Hapus
+                    </button>
                     {% endif %}
                 </td>
             </tr>

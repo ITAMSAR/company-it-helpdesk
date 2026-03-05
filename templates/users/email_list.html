@@ -62,7 +62,11 @@
                 </td>
                 <td>
                     <a href="{% url 'users:email_edit' email.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <a href="{% url 'users:email_delete' email.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
+                            data-item-name="{{ email.full_name }}"
+                            data-delete-url="{% url 'users:email_delete' email.pk %}">
+                        Hapus
+                    </button>
                 </td>
             </tr>
             {% empty %}
