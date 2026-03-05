@@ -7,6 +7,9 @@
     <h2>Inventaris Peralatan</h2>
     <div>
         {% if user.is_staff %}
+        <a href="{% url 'inventory:export_equipment' %}" class="btn btn-success me-2">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </a>
         <a href="{% url 'inventory:category_list' %}" class="btn btn-info me-2">
             <i class="bi bi-tags"></i> Kelola Kategori
         </a>
@@ -65,6 +68,7 @@
                 <td>
                     {% if user.is_staff %}
                     <a href="{% url 'inventory:equipment_edit' equipment.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'inventory:equipment_delete' equipment.pk %}" class="btn btn-sm btn-danger">Hapus</a>
                     {% endif %}
                 </td>
             </tr>

@@ -246,6 +246,15 @@
                 <!-- Toast Container -->
                 <div class="toast-container"></div>
                 
+                <!-- Messages Data (for JavaScript) -->
+                <div id="django-messages" style="display: none;">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div data-message="{{ message|escapejs }}" data-tags="{{ message.tags }}"></div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
                 {% if messages %}
                     {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
@@ -279,7 +288,10 @@
     <script>
         // Auto-hide alerts after 5 seconds with fade animation
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, checking for messages...');
+            
             const alerts = document.querySelectorAll('.alert');
+            console.log('Found alerts:', alerts.length);
             alerts.forEach(function(alert) {
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(alert);
@@ -291,16 +303,34 @@
                     }, 500);
                 }, 5000);
             });
+            
+            // Auto-show toast for Django messages
+            const messagesContainer = document.getElementById('django-messages');
+            console.log('Messages container:', messagesContainer);
+            if (messagesContainer) {
+                const messageElements = messagesContainer.querySelectorAll('[data-message]');
+                console.log('Found message elements:', messageElements.length);
+                messageElements.forEach(function(el) {
+                    const message = el.getAttribute('data-message');
+                    const tags = el.getAttribute('data-tags');
+                    console.log('Showing toast:', message, tags);
+                    showToast(message, tags);
+                });
+            }
         });
         
         // Show toast notification function
-        function showToast(message, type = 'success') {
+        function showToast(message, type) {
+            console.log('showToast called:', message, type);
+            type = type || 'success';
             const toastContainer = document.querySelector('.toast-container');
+            console.log('Toast container:', toastContainer);
             const toastId = 'toast-' + Date.now();
             
             const icons = {
                 success: 'check-circle-fill',
                 error: 'exclamation-triangle-fill',
+                danger: 'exclamation-triangle-fill',
                 warning: 'exclamation-circle-fill',
                 info: 'info-circle-fill'
             };
@@ -308,7 +338,7 @@
             const toastHTML = `
                 <div id="${toastId}" class="toast toast-${type}" role="alert">
                     <div class="toast-header">
-                        <i class="bi bi-${icons[type]} me-2"></i>
+                        <i class="bi bi-${icons[type] || icons.info} me-2"></i>
                         <strong class="me-auto">Notifikasi</strong>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
                     </div>
@@ -322,6 +352,7 @@
             const toastElement = document.getElementById(toastId);
             const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
             toast.show();
+            console.log('Toast shown:', toastId);
             
             toastElement.addEventListener('hidden.bs.toast', function() {
                 toastElement.remove();

@@ -70,6 +70,15 @@ class EquipmentUpdateView(AdminRequiredMixin, UpdateView):
         context['categories'] = EquipmentCategory.objects.all()
         return context
 
+class EquipmentDeleteView(AdminRequiredMixin, DeleteView):
+    model = Equipment
+    template_name = 'inventory/equipment_confirm_delete.html'
+    success_url = reverse_lazy('inventory:equipment_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Peralatan berhasil dihapus!')
+        return super().delete(request, *args, **kwargs)
+
 # Category Management Views
 class CategoryListView(AdminRequiredMixin, ListView):
     model = EquipmentCategory
@@ -105,3 +114,69 @@ class CategoryDeleteView(AdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Kategori berhasil dihapus!')
         return super().delete(request, *args, **kwargs)
+
+
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
+from datetime import datetime
+
+@login_required
+def export_equipment_excel(request):
+    """Export inventaris peralatan ke Excel"""
+    if not request.user.is_staff:
+        messages.error(request, 'Anda tidak memiliki akses untuk export data!')
+        return redirect('inventory:equipment_list')
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Inventaris Peralatan"
+    
+    # Header style
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+    
+    # Headers
+    headers = ['No', 'Nama', 'Kode Inventaris', 'Kategori', 'Spesifikasi', 'Pengguna', 'Status', 'Tanggal Pembelian', 'Garansi Sampai']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+    
+    # Data
+    equipment_list = Equipment.objects.select_related('category').all().order_by('-created_at')
+    for row, equipment in enumerate(equipment_list, 2):
+        ws.cell(row=row, column=1, value=row-1)
+        ws.cell(row=row, column=2, value=equipment.name)
+        ws.cell(row=row, column=3, value=equipment.inventory_code)
+        ws.cell(row=row, column=4, value=equipment.category.name)
+        ws.cell(row=row, column=5, value=equipment.specifications or '-')
+        ws.cell(row=row, column=6, value=equipment.current_user or '-')
+        ws.cell(row=row, column=7, value=equipment.get_status_display())
+        ws.cell(row=row, column=8, value=equipment.purchase_date.strftime('%d/%m/%Y') if equipment.purchase_date else '-')
+        ws.cell(row=row, column=9, value=equipment.warranty_until.strftime('%d/%m/%Y') if equipment.warranty_until else '-')
+    
+    # Adjust column widths
+    ws.column_dimensions['A'].width = 5
+    ws.column_dimensions['B'].width = 25
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 15
+    ws.column_dimensions['E'].width = 40
+    ws.column_dimensions['F'].width = 20
+    ws.column_dimensions['G'].width = 15
+    ws.column_dimensions['H'].width = 18
+    ws.column_dimensions['I'].width = 18
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f'Inventaris_Peralatan_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+    
+    wb.save(response)
+    return response

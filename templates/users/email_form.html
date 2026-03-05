@@ -53,8 +53,13 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Password Email</label>
-                    <input type="text" name="email_password" class="form-control {% if form.email_password.errors %}is-invalid{% endif %}" 
-                           value="{{ form.email_password.value|default:'' }}" placeholder="Masukkan password email">
+                    <div class="input-group">
+                        <input type="password" id="passwordField" name="email_password" class="form-control {% if form.email_password.errors %}is-invalid{% endif %}" 
+                               value="{{ form.email_password.value|default:'' }}" placeholder="Masukkan password email">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                            <i id="passwordIcon" class="bi bi-eye"></i>
+                        </button>
+                    </div>
                     <small class="text-muted">Password akan disimpan sebagai text biasa untuk keperluan recovery</small>
                     {% if form.email_password.errors %}
                     <div class="invalid-feedback">{{ form.email_password.errors.0 }}</div>
@@ -91,4 +96,129 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Password -->
+<div class="modal fade" id="passwordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-lock"></i> Konfirmasi Password Admin
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Perhatian!</strong> Masukkan password admin Anda untuk melihat password email.
+                </div>
+                <form id="verifyPasswordForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Password Admin</label>
+                        <input type="password" id="adminPassword" class="form-control" placeholder="Masukkan password Anda" required>
+                    </div>
+                    <div id="errorMessage" class="alert alert-danger d-none"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="verifyPassword()">
+                    <i class="bi bi-check-circle"></i> Verifikasi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let isPasswordVerified = false;
+
+function togglePassword() {
+    if (!isPasswordVerified) {
+        // Show modal untuk verifikasi password
+        const modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+        modal.show();
+    } else {
+        // Toggle password visibility
+        const passwordField = document.getElementById('passwordField');
+        const passwordIcon = document.getElementById('passwordIcon');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            passwordIcon.classList.remove('bi-eye');
+            passwordIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            passwordIcon.classList.remove('bi-eye-slash');
+            passwordIcon.classList.add('bi-eye');
+        }
+    }
+}
+
+function verifyPassword() {
+    const adminPassword = document.getElementById('adminPassword').value;
+    const errorDiv = document.getElementById('errorMessage');
+    
+    if (!adminPassword) {
+        errorDiv.textContent = 'Password tidak boleh kosong!';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Verify password via AJAX
+    fetch('/users/verify-password/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            password: adminPassword
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            isPasswordVerified = true;
+            
+            // Hide modal
+            bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
+            
+            // Show password
+            const passwordField = document.getElementById('passwordField');
+            const passwordIcon = document.getElementById('passwordIcon');
+            passwordField.type = 'text';
+            passwordIcon.classList.remove('bi-eye');
+            passwordIcon.classList.add('bi-eye-slash');
+            
+            // Show success message
+            showToast('Password berhasil ditampilkan!', 'success');
+        } else {
+            errorDiv.textContent = 'Password admin salah!';
+            errorDiv.classList.remove('d-none');
+        }
+    })
+    .catch(error => {
+        errorDiv.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+        errorDiv.classList.remove('d-none');
+    });
+}
+
+// Allow Enter key to submit
+document.addEventListener('DOMContentLoaded', function() {
+    const adminPasswordInput = document.getElementById('adminPassword');
+    if (adminPasswordInput) {
+        adminPasswordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                verifyPassword();
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

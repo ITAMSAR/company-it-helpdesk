@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Hapus Tiket - IT Hub Internal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Konfirmasi Hapus Tiket
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Perhatian!</strong> Data yang dihapus tidak dapat dikembalikan.
+                </div>
+                
+                <p class="mb-3">Apakah Anda yakin ingin menghapus tiket ini?</p>
+                
+                <div class="bg-light p-3 rounded mb-4">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td width="150"><strong>Judul:</strong></td>
+                            <td>{{ ticket.title }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pelapor:</strong></td>
+                            <td>{{ ticket.reporter.username }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td>{{ ticket.get_status_display }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prioritas:</strong></td>
+                            <td>{{ ticket.get_priority_display }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tanggal:</strong></td>
+                            <td>{{ ticket.created_at|date:"d M Y H:i" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Ya, Hapus
+                    </button>
+                    <a href="{% url 'tickets:ticket_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Batal
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
