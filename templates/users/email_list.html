@@ -50,7 +50,13 @@
             <tr>
                 <td>{{ email.full_name }}</td>
                 <td>{{ email.employee_id }}</td>
-                <td>{{ email.primary_email }}</td>
+                <td>
+                    {% for email_addr in email.get_email_list %}
+                        <div class="mb-1">
+                            <i class="bi bi-envelope"></i> {{ email_addr }}
+                        </div>
+                    {% endfor %}
+                </td>
                 <td>{{ email.recovery_email|default:"-" }}</td>
                 <td>{{ email.recovery_phone|default:"-" }}</td>
                 <td>

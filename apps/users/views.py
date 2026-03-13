@@ -10,6 +10,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate
 import json
 from .models import EmployeeEmail
+from .forms import EmployeeEmailForm
 from apps.inventory.models import Equipment
 from apps.tickets.models import Ticket
 
@@ -89,9 +90,8 @@ class EmployeeEmailListView(AdminRequiredMixin, ListView):
 
 class EmployeeEmailCreateView(AdminRequiredMixin, CreateView):
     model = EmployeeEmail
+    form_class = EmployeeEmailForm
     template_name = 'users/email_form.html'
-    fields = ['full_name', 'employee_id', 'primary_email', 'email_password', 
-              'recovery_email', 'recovery_phone', 'is_active']
     success_url = reverse_lazy('users:email_list')
     
     def form_valid(self, form):
@@ -100,9 +100,8 @@ class EmployeeEmailCreateView(AdminRequiredMixin, CreateView):
 
 class EmployeeEmailUpdateView(AdminRequiredMixin, UpdateView):
     model = EmployeeEmail
+    form_class = EmployeeEmailForm
     template_name = 'users/email_form.html'
-    fields = ['full_name', 'employee_id', 'primary_email', 'email_password', 
-              'recovery_email', 'recovery_phone', 'is_active']
     success_url = reverse_lazy('users:email_list')
     
     def form_valid(self, form):

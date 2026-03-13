@@ -5,6 +5,12 @@
 {% block content %}
 <h2 class="mb-4">{% if object %}Edit{% else %}Tambah{% endif %} Email Karyawan</h2>
 
+<div class="alert alert-info mb-4">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <strong>Tips:</strong> Anda bisa memasukkan beberapa alamat email untuk satu karyawan. 
+    Pisahkan setiap email dengan koma (,). Contoh: <code>user@gmail.com, user.work@company.com</code>
+</div>
+
 {% if form.errors %}
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -42,29 +48,30 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Email Utama</label>
-                    <input type="email" name="primary_email" class="form-control {% if form.primary_email.errors %}is-invalid{% endif %}" 
-                           value="{{ form.primary_email.value|default:'' }}" required>
-                    {% if form.primary_email.errors %}
-                    <div class="invalid-feedback">{{ form.primary_email.errors.0 }}</div>
-                    {% endif %}
+            <div class="mb-3">
+                <label class="form-label">Email Utama</label>
+                <textarea name="primary_email" class="form-control {% if form.primary_email.errors %}is-invalid{% endif %}" 
+                          rows="3" required placeholder="Masukkan satu atau beberapa email (pisahkan dengan koma)&#10;Contoh: user@example.com, user.work@company.com">{{ form.primary_email.value|default:'' }}</textarea>
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> Anda bisa memasukkan beberapa email untuk satu karyawan. Pisahkan dengan koma (,)
+                </small>
+                {% if form.primary_email.errors %}
+                <div class="invalid-feedback">{{ form.primary_email.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password Email</label>
+                <div class="input-group">
+                    <input type="password" id="passwordField" name="email_password" class="form-control {% if form.email_password.errors %}is-invalid{% endif %}" 
+                           value="{{ form.email_password.value|default:'' }}" placeholder="Masukkan password email">
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                        <i id="passwordIcon" class="bi bi-eye"></i>
+                    </button>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Password Email</label>
-                    <div class="input-group">
-                        <input type="password" id="passwordField" name="email_password" class="form-control {% if form.email_password.errors %}is-invalid{% endif %}" 
-                               value="{{ form.email_password.value|default:'' }}" placeholder="Masukkan password email">
-                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
-                            <i id="passwordIcon" class="bi bi-eye"></i>
-                        </button>
-                    </div>
-                    <small class="text-muted">Password akan disimpan sebagai text biasa untuk keperluan recovery</small>
-                    {% if form.email_password.errors %}
-                    <div class="invalid-feedback">{{ form.email_password.errors.0 }}</div>
-                    {% endif %}
-                </div>
+                <small class="text-muted">Password akan disimpan sebagai text biasa untuk keperluan recovery</small>
+                {% if form.email_password.errors %}
+                <div class="invalid-feedback">{{ form.email_password.errors.0 }}</div>
+                {% endif %}
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
