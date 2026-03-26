@@ -82,19 +82,42 @@
     </table>
 </div>
 
-{% if is_paginated %}
-<nav>
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+<div style="height: 60px;"></div>
+
+<nav class="fixed-bottom bg-white border-top py-2 px-4" style="left: 16.66667%;">
+    <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+            {% if is_paginated %}
+                Menampilkan {{ page_obj.start_index }}-{{ page_obj.end_index }} dari {{ page_obj.paginator.count }} data
+            {% else %}
+                Menampilkan {{ emails|length }} data
+            {% endif %}
+        </small>
+        {% if is_paginated %}
+        <ul class="pagination mb-0">
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                {% if page_obj.has_previous %}<a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{% else %}<span class="page-link">{% endif %}«{% if page_obj.has_previous %}</a>{% else %}</span>{% endif %}
+            </li>
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                {% if page_obj.has_previous %}<a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{% else %}<span class="page-link">{% endif %}‹{% if page_obj.has_previous %}</a>{% else %}</span>{% endif %}
+            </li>
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                {% if page_obj.has_next %}<a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{% else %}<span class="page-link">{% endif %}›{% if page_obj.has_next %}</a>{% else %}</span>{% endif %}
+            </li>
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                {% if page_obj.has_next %}<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{% else %}<span class="page-link">{% endif %}»{% if page_obj.has_next %}</a>{% else %}</span>{% endif %}
+            </li>
+        </ul>
         {% endif %}
-        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
-        {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
-        {% endif %}
-    </ul>
+    </div>
 </nav>
-{% endif %}
 {% endblock %}

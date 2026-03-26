@@ -10,7 +10,20 @@ class EquipmentListView(LoginRequiredMixin, ListView):
     model = Equipment
     template_name = 'inventory/equipment_list.html'
     context_object_name = 'equipment_list'
-    paginate_by = 20
+    paginate_by = 10
+
+    def get(self, request, *args, **kwargs):
+        # Clamp page number to valid range
+        try:
+            page = int(request.GET.get('page', 1))
+            if page < 1:
+                from django.http import HttpResponseRedirect
+                params = request.GET.copy()
+                params['page'] = 1
+                return HttpResponseRedirect(f"?{params.urlencode()}")
+        except (ValueError, TypeError):
+            pass
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = super().get_queryset()
