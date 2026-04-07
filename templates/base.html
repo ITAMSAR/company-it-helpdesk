@@ -9,76 +9,153 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
+        :root { --sidebar-width: 240px; }
         body { min-height: 100vh; background: #f5f7fa; }
-        .sidebar { 
-            min-height: 100vh; 
+
+        /* ── SIDEBAR (desktop) ── */
+        .sidebar {
+            height: 100vh;
             background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            position: relative;
-            padding-bottom: 80px; /* Space for user info */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            z-index: 1040;
+            transition: transform 0.3s ease;
         }
-        .sidebar a { 
-            color: #bdc3c7; 
-            text-decoration: none; 
-            padding: 12px 20px; 
+        .sidebar a {
+            color: #bdc3c7;
+            text-decoration: none;
+            padding: 12px 20px;
             display: block;
             transition: all 0.3s;
             border-left: 3px solid transparent;
+            white-space: nowrap;
         }
-        .sidebar a:hover { 
-            background: rgba(255,255,255,0.1); 
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.1);
             color: #fff;
             border-left-color: #3498db;
             padding-left: 25px;
         }
-        .sidebar a.active { 
-            background: rgba(52, 152, 219, 0.2); 
+        .sidebar a.active {
+            background: rgba(52, 152, 219, 0.2);
             color: #fff;
             border-left-color: #3498db;
         }
-        .sidebar a i {
-            width: 20px;
-            margin-right: 10px;
-        }
-        .main-content { 
-            padding: 30px;
-            background: #f5f7fa;
-        }
+        .sidebar a i { width: 20px; margin-right: 10px; }
+
         .sidebar-header {
             padding: 25px 20px;
             background: rgba(0,0,0,0.2);
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar-header h5 {
-            color: white;
-            margin: 0;
-            font-weight: 600;
-            font-size: 20px;
-        }
-        .sidebar-header p {
-            color: #bdc3c7;
-            margin: 5px 0 0 0;
-            font-size: 12px;
-        }
+        .sidebar-header h5 { color: white; margin: 0; font-weight: 600; font-size: 20px; }
+        .sidebar-header p  { color: #bdc3c7; margin: 5px 0 0 0; font-size: 12px; }
+
         .user-info {
             padding: 15px 20px;
             background: rgba(0,0,0,0.2);
             border-top: 1px solid rgba(255,255,255,0.1);
             position: fixed;
             bottom: 0;
-            width: 16.66667%; /* Same as col-md-2 */
-            z-index: 100;
+            width: var(--sidebar-width);
+            z-index: 1041;
         }
-        .user-info strong {
-            color: white;
-            font-size: 14px;
-            display: block;
+        .user-info strong { color: white; font-size: 14px; display: block; }
+        .user-info small  { color: #bdc3c7; font-size: 11px; display: block; margin-top: 3px; }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            padding: 30px;
+            background: #f5f7fa;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
         }
-        .user-info small {
-            color: #bdc3c7;
-            font-size: 11px;
-            display: block;
-            margin-top: 3px;
+
+        /* ── TOPBAR (mobile) ── */
+        .topbar {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
+            z-index: 1050;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .topbar-title { color: #fff; font-weight: 600; font-size: 17px; margin: 0 auto 0 12px; }
+        .btn-menu {
+            background: none; border: none; color: #fff;
+            font-size: 22px; padding: 4px 8px; cursor: pointer;
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1039;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* ── RESPONSIVE ── */
+        /* Tablet: sidebar lebih sempit */
+        @media (max-width: 1199px) and (min-width: 769px) {
+            :root { --sidebar-width: 200px; }
+            .sidebar-header h5 { font-size: 16px; }
+            .sidebar a { padding: 10px 14px; font-size: 14px; }
+        }
+
+        /* Mobile: sidebar jadi drawer, topbar muncul */
+        @media (max-width: 768px) {
+            .topbar { display: flex; }
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+                top: 0;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content {
+                margin-left: 0;
+                padding: 80px 16px 24px;
+            }
+            .user-info { width: 260px; }
+
+            /* Tabel bisa di-scroll horizontal di mobile */
+            .table-responsive-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+            /* Tombol lebih besar di mobile */
+            .btn { padding: 10px 16px; font-size: 14px; }
+
+            /* Card full width */
+            .card { border-radius: 10px; }
+        }
+
+        /* Layar besar (>1400px): sidebar sedikit lebih lebar */
+        @media (min-width: 1400px) {
+            :root { --sidebar-width: 260px; }
+        }
+
+        /* ── UTILITY ── */
+        /* Tabel scroll horizontal */
+        .table-responsive { border-radius: 10px; }
+
+        /* Form controls lebih nyaman di mobile */
+        @media (max-width: 576px) {
+            .main-content { padding: 72px 12px 20px; }
+            h2 { font-size: 1.4rem; }
+            .d-flex.justify-content-between { flex-wrap: wrap; gap: 8px; }
+            .btn { width: 100%; margin-bottom: 4px; }
+            .btn + .btn { margin-left: 0 !important; }
+            /* Tombol aksi di tabel tetap inline */
+            .table .btn { width: auto; margin-bottom: 0; }
         }
         
         /* Toast Notifications */
@@ -180,69 +257,80 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-    <div class="container-fluid">
-        <div class="row">
-            <nav class="col-md-2 d-md-block sidebar">
-                <div class="position-sticky pt-0">
-                    <div class="sidebar-header">
-                        <h5><i class="bi bi-shield-check"></i> IT Hub</h5>
-                        <p>Internal Dashboard</p>
+
+    <!-- Topbar (mobile only) -->
+    <div class="topbar">
+        <button class="btn-menu" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list"></i>
+        </button>
+        <span class="topbar-title"><i class="bi bi-shield-check"></i> IT Hub</span>
+        <span style="color:#bdc3c7;font-size:13px;">{{ user.username }}</span>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container-fluid p-0">
+        <div class="d-flex">
+            <nav class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h5><i class="bi bi-shield-check"></i> IT Hub</h5>
+                    <p>Internal Dashboard</p>
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'users:email_list' %}">
+                            <i class="bi bi-envelope"></i> Email Karyawan
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'inventory:equipment_list' %}">
+                            <i class="bi bi-laptop"></i> Inventaris
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'inventory:category_list' %}">
+                            <i class="bi bi-tags"></i> Kelola Kategori
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tickets:ticket_list' %}">
+                            <i class="bi bi-ticket"></i> Tiket
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'reminder:reminder' %}">
+                            <i class="bi bi-bell"></i> Reminder Jaringan
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+                <div class="user-info">
+                    <div>
+                        <i class="bi bi-person-circle"></i>
+                        <strong>{{ user.username }}</strong>
                     </div>
-                    <ul class="nav flex-column mt-3">
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
-                                <i class="bi bi-speedometer2"></i> Dashboard
-                            </a>
-                        </li>
+                    <small>
                         {% if user.is_staff %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'users:email_list' %}">
-                                <i class="bi bi-envelope"></i> Email Karyawan
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'inventory:equipment_list' %}">
-                                <i class="bi bi-laptop"></i> Inventaris
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'inventory:category_list' %}">
-                                <i class="bi bi-tags"></i> Kelola Kategori
-                            </a>
-                        </li>
+                        <i class="bi bi-star-fill"></i> Administrator
+                        {% else %}
+                        <i class="bi bi-person"></i> User
                         {% endif %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'tickets:ticket_list' %}">
-                                <i class="bi bi-ticket"></i> Tiket
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'reminder:reminder' %}">
-                                <i class="bi bi-bell"></i> Reminder Jaringan
-                            </a>
-                        </li>
-                        <li class="nav-item mt-3">
-                            <a class="nav-link" href="{% url 'logout' %}">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="user-info">
-                        <div>
-                            <i class="bi bi-person-circle"></i>
-                            <strong>{{ user.username }}</strong>
-                        </div>
-                        <small>
-                            {% if user.is_staff %}
-                            <i class="bi bi-star-fill"></i> Administrator
-                            {% else %}
-                            <i class="bi bi-person"></i> User
-                            {% endif %}
-                        </small>
-                    </div>
+                    </small>
                 </div>
             </nav>
-            <main class="col-md-10 ms-sm-auto main-content">
+            <main class="main-content flex-grow-1">
                 <!-- Toast Container -->
                 <div class="toast-container"></div>
                 
@@ -294,6 +382,31 @@
     <script src="{% static 'js/main.js' %}"></script>
     
     <script>
+        // Sidebar toggle (mobile)
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function () {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('show');
+            });
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('show');
+            });
+            // Tutup sidebar saat klik link di mobile
+            sidebar.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('show');
+                    }
+                });
+            });
+        }
+
         // Auto-hide alerts after 5 seconds with fade animation
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, checking for messages...');
