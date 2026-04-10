@@ -27,6 +27,13 @@ class EquipmentCategory(models.Model):
             return f"{self.parent.full_path} > {self.name}"
         return self.name
     
+    @property
+    def code(self):
+        """Generate kode kategori dari nama"""
+        # Ambil kata pertama dari nama kategori dan jadikan uppercase
+        # Contoh: "Komputer" -> "KOMPUTER", "Meja Kerja" -> "MEJA"
+        return self.name.split()[0].upper()
+    
     @classmethod
     def get_root_categories(cls):
         """Mengembalikan kategori level teratas (tanpa parent)"""
@@ -49,7 +56,7 @@ class Equipment(models.Model):
     ]
     
     name = models.CharField(max_length=200, verbose_name='Nama Barang')
-    inventory_code = models.CharField(max_length=100, unique=True, verbose_name='Kode Inventaris')
+    inventory_code = models.CharField(max_length=100, unique=True, verbose_name='Kode Inventaris', blank=True)
     category = models.ForeignKey(EquipmentCategory, on_delete=models.PROTECT, 
                                  related_name='equipment', verbose_name='Kategori')
     specifications = models.TextField(blank=True, verbose_name='Spesifikasi')
@@ -68,3 +75,37 @@ class Equipment(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.inventory_code})"
+    
+    def generate_inventory_code(self):
+        """Generate kode inventaris otomatis berdasarkan kategori"""
+        if not self.category:
+            return None
+            
+        # Format: APM/KATEGORI/XXX
+        prefix = "APM"
+        category_code = self.category.code  # Menggunakan property code
+        
+        # Cari nomor urut terakhir untuk kategori ini
+        last_equipment = Equipment.objects.filter(
+            category=self.category,
+            inventory_code__startswith=f"{prefix}/{category_code}/"
+        ).order_by('-inventory_code').first()
+        
+        if last_equipment:
+            # Ambil nomor urut dari kode terakhir
+            try:
+                last_number = int(last_equipment.inventory_code.split('/')[-1])
+                next_number = last_number + 1
+            except (ValueError, IndexError):
+                next_number = 1
+        else:
+            next_number = 1
+        
+        # Format nomor dengan 3 digit (001, 002, dst)
+        return f"{prefix}/{category_code}/{next_number:03d}"
+    
+    def save(self, *args, **kwargs):
+        # Auto-generate kode inventaris jika belum ada
+        if not self.inventory_code:
+            self.inventory_code = self.generate_inventory_code()
+        super().save(*args, **kwargs)

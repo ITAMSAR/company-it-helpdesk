@@ -72,7 +72,7 @@
                     <small class="text-muted d-md-none">{{ equipment.category.name }}</small>
                 </td>
                 <td class="col-code">
-                    <code class="small">{{ equipment.inventory_code }}</code>
+                    <code class="small" style="color: #e91e63; font-weight: bold;">{{ equipment.inventory_code }}</code>
                 </td>
                 <td class="col-category d-none d-md-table-cell">
                     <span class="badge bg-info">{{ equipment.category.name }}</span>
@@ -98,8 +98,8 @@
                 <td class="col-actions text-center">
                     {% if user.is_staff %}
                     <div class="d-flex gap-1 justify-content-center">
-                        <button type="button" class="btn btn-sm btn-warning" 
-                                onclick="window.location.href='{% url 'inventory:equipment_edit' equipment.pk %}'"
+                        <button type="button" class="btn btn-sm btn-warning btn-edit-item" 
+                                data-edit-url="{% url 'inventory:equipment_edit' equipment.pk %}"
                                 title="Edit">
                             <i class="bi bi-pencil-fill"></i>
                         </button>
@@ -196,6 +196,16 @@ document.addEventListener('DOMContentLoaded', function() {
             mainCategorySelect.dispatchEvent(new Event('change'));
         }
     }
+    
+    // Handle edit button clicks
+    document.querySelectorAll('.btn-edit-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const editUrl = this.getAttribute('data-edit-url');
+            if (editUrl) {
+                window.location.href = editUrl;
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

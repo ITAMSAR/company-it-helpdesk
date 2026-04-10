@@ -39,40 +39,53 @@ class DashboardView(LoginRequiredMixin, ListView):
         if self.request.user.is_staff:
             # Total counts
             context['total_users'] = EmployeeEmail.objects.count()
-            context['total_equipment'] = Equipment.objects.count()
             context['pending_tickets'] = Ticket.objects.filter(status='new').count()
             
             # Email status breakdown
             context['email_active'] = EmployeeEmail.objects.filter(is_active=True).count()
             context['email_inactive'] = EmployeeEmail.objects.filter(is_active=False).count()
             
-            # Equipment status breakdown
-            context['equipment_available'] = Equipment.objects.filter(status='available').count()
-            context['equipment_borrowed'] = Equipment.objects.filter(status='borrowed').count()
-            context['equipment_broken'] = Equipment.objects.filter(status='broken').count()
-            context['equipment_service'] = Equipment.objects.filter(status='service').count()
+            # Get main categories
+            elektronik_category = EquipmentCategory.objects.filter(name='Elektronik').first()
+            furniture_category = EquipmentCategory.objects.filter(name='Furniture').first()
             
-            # Ticket status breakdown
-            context['ticket_new'] = Ticket.objects.filter(status='new').count()
-            context['ticket_in_progress'] = Ticket.objects.filter(status='in_progress').count()
-            context['ticket_completed'] = Ticket.objects.filter(status='completed').count()
-            context['ticket_cancelled'] = Ticket.objects.filter(status='cancelled').count()
+            # Elektronik breakdown
+            if elektronik_category:
+                elektronik_subcategories = elektronik_category.get_children()
+                elektronik_equipment = Equipment.objects.filter(category__in=elektronik_subcategories)
+                context['total_elektronik'] = elektronik_equipment.count()
+                context['elektronik_available'] = elektronik_equipment.filter(status='available').count()
+                context['elektronik_borrowed'] = elektronik_equipment.filter(status='borrowed').count()
+                context['elektronik_broken'] = elektronik_equipment.filter(status='broken').count()
+                context['elektronik_service'] = elektronik_equipment.filter(status='service').count()
+            else:
+                context['total_elektronik'] = 0
+                context['elektronik_available'] = 0
+                context['elektronik_borrowed'] = 0
+                context['elektronik_broken'] = 0
+                context['elektronik_service'] = 0
             
             # Furniture breakdown
-            furniture_category = EquipmentCategory.objects.filter(name='Furniture').first()
             if furniture_category:
                 furniture_subcategories = furniture_category.get_children()
-                context['total_furniture'] = Equipment.objects.filter(category__in=furniture_subcategories).count()
-                context['furniture_available'] = Equipment.objects.filter(category__in=furniture_subcategories, status='available').count()
-                context['furniture_borrowed'] = Equipment.objects.filter(category__in=furniture_subcategories, status='borrowed').count()
-                context['furniture_broken'] = Equipment.objects.filter(category__in=furniture_subcategories, status='broken').count()
-                context['furniture_service'] = Equipment.objects.filter(category__in=furniture_subcategories, status='service').count()
+                furniture_equipment = Equipment.objects.filter(category__in=furniture_subcategories)
+                context['total_furniture'] = furniture_equipment.count()
+                context['furniture_available'] = furniture_equipment.filter(status='available').count()
+                context['furniture_borrowed'] = furniture_equipment.filter(status='borrowed').count()
+                context['furniture_broken'] = furniture_equipment.filter(status='broken').count()
+                context['furniture_service'] = furniture_equipment.filter(status='service').count()
             else:
                 context['total_furniture'] = 0
                 context['furniture_available'] = 0
                 context['furniture_borrowed'] = 0
                 context['furniture_broken'] = 0
                 context['furniture_service'] = 0
+            
+            # Ticket status breakdown
+            context['ticket_new'] = Ticket.objects.filter(status='new').count()
+            context['ticket_in_progress'] = Ticket.objects.filter(status='in_progress').count()
+            context['ticket_completed'] = Ticket.objects.filter(status='completed').count()
+            context['ticket_cancelled'] = Ticket.objects.filter(status='cancelled').count()
         else:
             context['my_tickets'] = Ticket.objects.filter(reporter=self.request.user).count()
         return context
