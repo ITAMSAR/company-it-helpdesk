@@ -33,6 +33,7 @@ class DashboardView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         from django.utils import timezone
         from django.db.models import Count
+        from apps.inventory.models import EquipmentCategory
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now()
         if self.request.user.is_staff:
@@ -56,6 +57,22 @@ class DashboardView(LoginRequiredMixin, ListView):
             context['ticket_in_progress'] = Ticket.objects.filter(status='in_progress').count()
             context['ticket_completed'] = Ticket.objects.filter(status='completed').count()
             context['ticket_cancelled'] = Ticket.objects.filter(status='cancelled').count()
+            
+            # Furniture breakdown
+            furniture_category = EquipmentCategory.objects.filter(name='Furniture').first()
+            if furniture_category:
+                furniture_subcategories = furniture_category.get_children()
+                context['total_furniture'] = Equipment.objects.filter(category__in=furniture_subcategories).count()
+                context['furniture_available'] = Equipment.objects.filter(category__in=furniture_subcategories, status='available').count()
+                context['furniture_borrowed'] = Equipment.objects.filter(category__in=furniture_subcategories, status='borrowed').count()
+                context['furniture_broken'] = Equipment.objects.filter(category__in=furniture_subcategories, status='broken').count()
+                context['furniture_service'] = Equipment.objects.filter(category__in=furniture_subcategories, status='service').count()
+            else:
+                context['total_furniture'] = 0
+                context['furniture_available'] = 0
+                context['furniture_borrowed'] = 0
+                context['furniture_broken'] = 0
+                context['furniture_service'] = 0
         else:
             context['my_tickets'] = Ticket.objects.filter(reporter=self.request.user).count()
         return context

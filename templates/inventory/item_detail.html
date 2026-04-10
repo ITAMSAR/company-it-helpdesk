@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ equipment.name }} - Asset Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --corporate-blue: #1e3a8a;
+            --corporate-navy: #1e293b;
+            --corporate-gray: #64748b;
+            --corporate-light: #f8fafc;
+            --success-green: #059669;
+            --warning-amber: #d97706;
+            --danger-red: #dc2626;
+            --accent-purple: #7c3aed;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #334155;
+            overflow-x: hidden;
+        }
+        
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #ffffff 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+        
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .asset-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            max-width: 480px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(60px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--corporate-navy) 0%, var(--corporate-blue) 100%);
+            color: white;
+            padding: 32px 28px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .asset-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -0.025em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .asset-code {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.5px;
+        }
+        
+        .card-body {
+            padding: 32px 28px;
+            background: var(--corporate-light);
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .info-item {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--corporate-blue);
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--corporate-blue);
+        }
+        
+        .info-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--corporate-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--corporate-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--corporate-navy);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 2px solid;
+            gap: 6px;
+        }
+        
+        .status-available {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: var(--success-green);
+            border-color: #86efac;
+        }
+        
+        .status-borrowed {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1d4ed8;
+            border-color: #93c5fd;
+        }
+        
+        .status-broken {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: var(--danger-red);
+            border-color: #fca5a5;
+        }
+        
+        .status-service {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: var(--warning-amber);
+            border-color: #fcd34d;
+        }
+        
+        .scan-success {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scan-success::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+            animation: scanPulse 2s infinite;
+        }
+        
+        @keyframes scanPulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .scan-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .scan-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--corporate-navy);
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .scan-time {
+            font-size: 0.875rem;
+            color: var(--corporate-gray);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .network-status {
+            background: linear-gradient(135deg, #f7fee7, #ecfccb);
+            border: 1px solid #bef264;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .network-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #65a30d, #84cc16);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+        }
+        
+        .network-text {
+            flex: 1;
+        }
+        
+        .network-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #365314;
+            margin-bottom: 2px;
+        }
+        
+        .network-desc {
+            font-size: 0.75rem;
+            color: #4d7c0f;
+        }
+        
+        .company-footer {
+            background: var(--corporate-navy);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 20px 28px;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .company-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 15px;
+            }
+            
+            .asset-card {
+                border-radius: 20px;
+            }
+            
+            .card-header {
+                padding: 28px 24px;
+            }
+            
+            .asset-name {
+                font-size: 1.5rem;
+            }
+            
+            .card-body {
+                padding: 28px 24px;
+            }
+            
+            .info-item {
+                padding: 18px;
+            }
+            
+            .company-footer {
+                padding: 18px 24px;
+            }
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Selection styling */
+        ::selection {
+            background: var(--corporate-blue);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="main-container">
+        <div class="asset-card">
+            <div class="card-header">
+                <div class="asset-name">{{ equipment.name }}</div>
+                <div class="asset-code">{{ equipment.inventory_code }}</div>
+            </div>
+            
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-header">
+                            <div class="info-icon">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Status</div>
+                                <div class="info-value">
+                                    <span class="status-badge status-{{ equipment.status }}">
+                                        <i class="bi bi-circle-fill"></i>
+                                        {{ equipment.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-header">
+                            <div class="info-icon">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Lokasi</div>
+                                <div class="info-value">{{ equipment.location|default:"Tidak diketahui" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-header">
+                            <div class="info-icon">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Pengguna</div>
+                                <div class="info-value">{{ equipment.current_user|default:"Tidak ada" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-header">
+                            <div class="info-icon">
+                                <i class="bi bi-tags-fill"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Kategori</div>
+                                <div class="info-value">{{ equipment.category.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if equipment.specifications %}
+                    <div class="info-item">
+                        <div class="info-header">
+                            <div class="info-icon">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Spesifikasi</div>
+                                <div class="info-value">{{ equipment.specifications }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="scan-success">
+                    <div class="scan-icon">
+                        <i class="bi bi-qr-code-scan"></i>
+                    </div>
+                    <div class="scan-title">QR Code Berhasil Dipindai!</div>
+                    <div class="scan-time">{{ scanned_at|date:"d/m/Y • H:i:s" }}</div>
+                    
+                    <div class="network-status">
+                        <div class="network-icon">
+                            <i class="bi bi-wifi"></i>
+                        </div>
+                        <div class="network-text">
+                            <div class="network-title">Terhubung ke Server Lokal</div>
+                            <div class="network-desc">Data real-time dari Asset Management System</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="company-footer">
+                <div class="company-logo">IT Asset Management</div>
+                <div>Professional Inventory System</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced click animation for info items
+            const infoItems = document.querySelectorAll('.info-item');
+            infoItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.transform = 'translateY(-2px) scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-2px) scale(1)';
+                    }, 150);
+                });
+            });
+            
+            // Add entrance animation delay for info items
+            infoItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 200 + (index * 100));
+            });
+            
+            // Scan success animation
+            setTimeout(() => {
+                const scanSuccess = document.querySelector('.scan-success');
+                if (scanSuccess) {
+                    scanSuccess.style.animation = 'slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                }
+            }, 800);
+            
+            // Add subtle parallax effect
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const pattern = document.querySelector('.background-pattern');
+                if (pattern) {
+                    pattern.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

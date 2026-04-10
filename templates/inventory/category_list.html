@@ -29,12 +29,19 @@
                 <td>{{ category.equipment.count }} item</td>
                 <td>{{ category.created_at|date:"d M Y" }}</td>
                 <td>
-                    <a href="{% url 'inventory:category_edit' category.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
-                            data-item-name="{{ category.name }}"
-                            data-delete-url="{% url 'inventory:category_delete' category.pk %}">
-                        Hapus
-                    </button>
+                    <div class="d-flex gap-1">
+                        <button type="button" class="btn btn-sm btn-warning" 
+                                onclick="window.location.href='{% url 'inventory:category_edit' category.pk %}'"
+                                title="Edit">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
+                                data-item-name="{{ category.name }}"
+                                data-delete-url="{% url 'inventory:category_delete' category.pk %}"
+                                title="Hapus">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
             {% empty %}

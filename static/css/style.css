@@ -67,6 +67,7 @@ body {
 .stat-card {
     border-radius: 12px;
     transition: all 0.3s ease;
+    min-height: 280px;
 }
 
 .stat-card:hover {
@@ -84,8 +85,29 @@ body {
     font-size: 24px;
 }
 
+/* Large stat icons for dashboard */
+.stat-icon-large {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon-large i {
+    font-size: 2.5rem !important;
+}
+
 .stat-card .card-body {
-    padding: 1.5rem;
+    padding: 2rem;
+}
+
+.stat-card h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #212529;
+    line-height: 1;
 }
 
 .stat-card h2 {
@@ -94,9 +116,16 @@ body {
     color: #212529;
 }
 
+.stat-card .fw-medium {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
 .stat-card a {
     color: #6c757d;
     transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .stat-card a:hover {
@@ -104,19 +133,249 @@ body {
     transform: translateX(3px);
 }
 
+/* Responsive adjustments for 4 columns */
+/* Responsive Design Improvements */
+@media (max-width: 1200px) {
+    .main-content {
+        padding: 20px 15px;
+    }
+    
+    .stat-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .stat-card h1 {
+        font-size: 2.5rem;
+    }
+    
+    .stat-icon-large {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .stat-icon-large i {
+        font-size: 2rem !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-content {
+        padding: 15px 10px;
+    }
+    
+    .stat-card {
+        min-height: 250px;
+    }
+    
+    .stat-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .stat-card h1 {
+        font-size: 2rem;
+    }
+    
+    .stat-icon-large {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .stat-icon-large i {
+        font-size: 1.75rem !important;
+    }
+    
+    /* Table responsive improvements */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem 0.25rem;
+        white-space: nowrap;
+    }
+    
+    /* Button improvements for tablet */
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* Form improvements */
+    .row.g-3 {
+        margin-bottom: 1rem;
+    }
+    
+    .col-md-2, .col-md-3 {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        min-height: auto;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card .card-body {
+        padding: 1rem;
+    }
+    
+    /* Mobile table improvements */
+    .table-responsive {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .table {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+    }
+    
+    .table th, .table td {
+        padding: 0.375rem 0.25rem;
+        vertical-align: middle;
+    }
+    
+    /* Hide less important columns on mobile */
+    .table th:nth-child(3), 
+    .table td:nth-child(3),
+    .table th:nth-child(5), 
+    .table td:nth-child(5) {
+        display: none;
+    }
+    
+    /* Stack action buttons vertically on very small screens */
+    .d-flex.gap-1 {
+        flex-direction: column;
+        gap: 2px !important;
+    }
+    
+    .d-flex.gap-1 .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Form becomes full width stack */
+    .row.g-3 > div {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Header buttons stack */
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .d-flex.justify-content-between > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .d-flex.justify-content-between .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-content {
+        padding: 10px 5px;
+    }
+    
+    h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Ultra compact table for small phones */
+    .table {
+        font-size: 0.7rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.25rem 0.125rem;
+    }
+    
+    /* Show only essential columns */
+    .table th:not(:first-child):not(:last-child):not(:nth-last-child(2)), 
+    .table td:not(:first-child):not(:last-child):not(:nth-last-child(2)) {
+        display: none;
+    }
+}
+
+/* Download buttons responsive */
+@media (max-width: 768px) {
+    .col-qr {
+        min-width: 100px; /* Adjusted for 2 buttons */
+    }
+    
+    .btn-outline-primary {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Download buttons styling */
+.col-qr .d-flex {
+    flex-wrap: nowrap;
+}
+
+.col-qr .btn {
+    min-width: 36px;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Sidebar responsive improvements */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 280px;
+    }
+    
+    .sidebar a {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .sidebar a i {
+        width: 18px;
+        margin-right: 8px;
+    }
+}
+
 /* Status Breakdown */
 .status-breakdown {
-    padding: 12px 0;
+    padding: 16px 0;
+    margin-top: 1rem;
+}
+
+.status-breakdown .d-flex {
+    padding: 8px 0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.status-breakdown .d-flex:hover {
+    background-color: rgba(0,0,0,0.02);
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .status-breakdown .badge {
-    min-width: 32px;
+    min-width: 40px;
     text-align: center;
     font-weight: 600;
+    font-size: 0.85rem;
+    padding: 8px 12px;
 }
 
 .status-breakdown i {
-    font-size: 12px;
+    font-size: 14px;
+}
+
+.status-breakdown .fw-medium {
+    font-size: 0.95rem;
+    color: #495057;
 }
 
 /* Table Improvements */
@@ -184,4 +443,106 @@ body {
 /* Responsive spacing */
 .g-3 {
     gap: 1rem;
+}
+
+/* Icon Button Improvements */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    min-width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-sm i {
+    font-size: 0.875rem;
+}
+
+/* Icon-only buttons */
+.btn-sm.btn-warning {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    border: none;
+    color: white;
+}
+
+.btn-sm.btn-warning:hover {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-sm.btn-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border: none;
+    color: white;
+}
+
+.btn-sm.btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-sm.btn-outline-primary {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.btn-sm.btn-outline-primary:hover {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* QR Modal improvements */
+#qrModal .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+#qrModal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    border-bottom: none;
+}
+
+#qrModal .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+#qrcode canvas {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Action buttons alignment */
+.d-flex.gap-1 {
+    gap: 4px !important;
+}
+
+.d-flex.gap-1 .btn {
+    flex-shrink: 0;
+}
+
+/* Download button styling */
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-success i {
+    font-size: 1rem;
 }

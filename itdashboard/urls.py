@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from apps.users.views import DashboardView
 from apps.users.logout_view import logout_view
+from apps.inventory.qr_views import item_detail_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,6 +16,9 @@ urlpatterns = [
     path('inventory/', include('apps.inventory.urls')),
     path('tickets/', include('apps.tickets.urls')),
     path('reminder/', include('apps.reminder.urls')),
+    
+    # QR Code public route - accessible from mobile
+    path('item/<str:code>/', item_detail_view, name='item_detail'),
 ]
 
 if settings.DEBUG:

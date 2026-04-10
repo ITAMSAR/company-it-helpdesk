@@ -10,6 +10,18 @@
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
+                <label class="form-label">Kategori Induk (Opsional)</label>
+                <select name="parent" class="form-select">
+                    <option value="">-- Kategori Utama --</option>
+                    {% for cat in root_categories %}
+                    <option value="{{ cat.id }}" {% if form.parent.value == cat.id or object.parent.id == cat.id %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">Pilih kategori induk jika ini adalah sub-kategori</small>
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Nama Kategori</label>
                 <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}" required>
             </div>

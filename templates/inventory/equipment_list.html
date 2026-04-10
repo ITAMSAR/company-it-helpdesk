@@ -21,15 +21,20 @@
 </div>
 
 <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <input type="text" name="search" class="form-control" placeholder="Cari nama atau kode inventaris..." value="{{ request.GET.search }}">
     </div>
-    <div class="col-md-3">
-        <select name="category" class="form-select">
+    <div class="col-md-2">
+        <select name="main_category" id="mainCategorySelect" class="form-select">
             <option value="">Semua Kategori</option>
-            {% for cat in categories %}
-            <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% for cat in root_categories %}
+            <option value="{{ cat.id }}" {% if request.GET.main_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
             {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="category" id="subCategorySelect" class="form-select" disabled>
+            <option value="">Sub Kategori</option>
         </select>
     </div>
     <div class="col-md-3">
@@ -46,38 +51,73 @@
 </form>
 
 <div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
             <tr>
-                <th>Nama</th>
-                <th>Kode</th>
-                <th>Kategori</th>
-                <th>Pengguna</th>
-                <th>Status</th>
-                <th>Aksi</th>
+                <th class="col-name">Nama</th>
+                <th class="col-code">Kode</th>
+                <th class="col-category d-none d-md-table-cell">Kategori</th>
+                <th class="col-user">Pengguna</th>
+                <th class="col-location d-none d-lg-table-cell">Lokasi</th>
+                <th class="col-qr text-center">QR Code</th>
+                <th class="col-status">Status</th>
+                <th class="col-actions text-center">Aksi</th>
             </tr>
         </thead>
         <tbody>
             {% for equipment in equipment_list %}
             <tr>
-                <td>{{ equipment.name }}</td>
-                <td>{{ equipment.inventory_code }}</td>
-                <td><span class="badge bg-info">{{ equipment.category.name }}</span></td>
-                <td>{{ equipment.current_user|default:"-" }}</td>
-                <td><span class="badge bg-secondary">{{ equipment.get_status_display }}</span></td>
-                <td>
+                <td class="col-name">
+                    <div class="fw-medium">{{ equipment.name }}</div>
+                    <small class="text-muted d-md-none">{{ equipment.category.name }}</small>
+                </td>
+                <td class="col-code">
+                    <code class="small">{{ equipment.inventory_code }}</code>
+                </td>
+                <td class="col-category d-none d-md-table-cell">
+                    <span class="badge bg-info">{{ equipment.category.name }}</span>
+                </td>
+                <td class="col-user">
+                    <div class="small">{{ equipment.current_user|default:"-" }}</div>
+                    <small class="text-muted d-lg-none">{{ equipment.location|default:"-" }}</small>
+                </td>
+                <td class="col-location d-none d-lg-table-cell">
+                    <small class="text-muted">{{ equipment.location|default:"-" }}</small>
+                </td>
+                <td class="col-qr text-center">
+                    <a href="{% url 'inventory:generate_qr' equipment.pk %}" 
+                       class="btn btn-sm btn-success" 
+                       title="Download QR Code"
+                       download>
+                        <i class="bi bi-qr-code"></i> QR
+                    </a>
+                </td>
+                <td class="col-status">
+                    <span class="badge bg-secondary">{{ equipment.get_status_display }}</span>
+                </td>
+                <td class="col-actions text-center">
                     {% if user.is_staff %}
-                    <a href="{% url 'inventory:equipment_edit' equipment.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
-                            data-item-name="{{ equipment.name }}"
-                            data-delete-url="{% url 'inventory:equipment_delete' equipment.pk %}">
-                        Hapus
-                    </button>
+                    <div class="d-flex gap-1 justify-content-center">
+                        <button type="button" class="btn btn-sm btn-warning" 
+                                onclick="window.location.href='{% url 'inventory:equipment_edit' equipment.pk %}'"
+                                title="Edit">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
+                                data-item-name="{{ equipment.name }}"
+                                data-delete-url="{% url 'inventory:equipment_delete' equipment.pk %}"
+                                title="Hapus">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
                     {% endif %}
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" class="text-center">Belum ada data</td></tr>
+            <tr><td colspan="8" class="text-center py-4">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                <span class="text-muted">Belum ada data</span>
+            </td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -121,4 +161,41 @@
         {% endif %}
     </div>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mainCategorySelect = document.getElementById('mainCategorySelect');
+    const subCategorySelect = document.getElementById('subCategorySelect');
+    
+    if (mainCategorySelect && subCategorySelect) {
+        mainCategorySelect.addEventListener('change', function() {
+            const mainCategoryId = this.value;
+            
+            subCategorySelect.innerHTML = '<option value="">Sub Kategori</option>';
+            subCategorySelect.disabled = true;
+            
+            if (mainCategoryId) {
+                fetch(`/inventory/api/subcategories/?parent_id=${mainCategoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.subcategories && data.subcategories.length > 0) {
+                            subCategorySelect.disabled = false;
+                            data.subcategories.forEach(subcat => {
+                                const option = document.createElement('option');
+                                option.value = subcat.id;
+                                option.textContent = subcat.name;
+                                subCategorySelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+        
+        if (mainCategorySelect.value) {
+            mainCategorySelect.dispatchEvent(new Event('change'));
+        }
+    }
+});
+</script>
 {% endblock %}

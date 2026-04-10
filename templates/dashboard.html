@@ -15,30 +15,30 @@
 
 {% if user.is_staff %}
 <div class="row mb-4">
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card stat-card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="text-muted mb-1 small">Total Email Karyawan</p>
-                        <h2 class="mb-0 fw-bold">{{ total_users }}</h2>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-2 fw-medium">Total Email Karyawan</p>
+                        <h1 class="mb-0 fw-bold display-6">{{ total_users }}</h1>
                     </div>
-                    <div class="stat-icon bg-primary-subtle">
-                        <i class="bi bi-people-fill text-primary"></i>
+                    <div class="stat-icon-large bg-primary-subtle rounded-3 p-3 ms-3">
+                        <i class="bi bi-people-fill text-primary fs-1"></i>
                     </div>
                 </div>
                 <div class="status-breakdown">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-check-circle-fill text-success"></i> Aktif
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Aktif
                         </span>
-                        <span class="badge bg-success-subtle text-success">{{ email_active }}</span>
+                        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">{{ email_active }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="small text-muted">
-                            <i class="bi bi-x-circle-fill text-secondary"></i> Nonaktif
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-x-circle-fill text-secondary me-2"></i>Nonaktif
                         </span>
-                        <span class="badge bg-secondary-subtle text-secondary">{{ email_inactive }}</span>
+                        <span class="badge bg-secondary-subtle text-secondary fs-6 px-3 py-2">{{ email_inactive }}</span>
                     </div>
                 </div>
                 <div class="mt-3 pt-3 border-top">
@@ -49,42 +49,42 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card stat-card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="text-muted mb-1 small">Total Peralatan</p>
-                        <h2 class="mb-0 fw-bold">{{ total_equipment }}</h2>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-2 fw-medium">Total Peralatan</p>
+                        <h1 class="mb-0 fw-bold display-6">{{ total_equipment }}</h1>
                     </div>
-                    <div class="stat-icon bg-success-subtle">
-                        <i class="bi bi-laptop-fill text-success"></i>
+                    <div class="stat-icon-large bg-success-subtle rounded-3 p-3 ms-3">
+                        <i class="bi bi-laptop-fill text-success fs-1"></i>
                     </div>
                 </div>
                 <div class="status-breakdown">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-check-circle-fill text-success"></i> Tersedia
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Tersedia
                         </span>
-                        <span class="badge bg-success-subtle text-success">{{ equipment_available }}</span>
+                        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">{{ equipment_available }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-arrow-repeat text-info"></i> Dipinjam
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-arrow-repeat text-info me-2"></i>Dipinjam
                         </span>
-                        <span class="badge bg-info-subtle text-info">{{ equipment_borrowed }}</span>
+                        <span class="badge bg-info-subtle text-info fs-6 px-3 py-2">{{ equipment_borrowed }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-x-circle-fill text-danger"></i> Rusak
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-x-circle-fill text-danger me-2"></i>Rusak
                         </span>
-                        <span class="badge bg-danger-subtle text-danger">{{ equipment_broken }}</span>
+                        <span class="badge bg-danger-subtle text-danger fs-6 px-3 py-2">{{ equipment_broken }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="small text-muted">
-                            <i class="bi bi-tools text-warning"></i> Servis
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-tools text-warning me-2"></i>Servis
                         </span>
-                        <span class="badge bg-warning-subtle text-warning">{{ equipment_service }}</span>
+                        <span class="badge bg-warning-subtle text-warning fs-6 px-3 py-2">{{ equipment_service }}</span>
                     </div>
                 </div>
                 <div class="mt-3 pt-3 border-top">
@@ -95,42 +95,88 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card stat-card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="text-muted mb-1 small">Tiket Pending</p>
-                        <h2 class="mb-0 fw-bold">{{ pending_tickets }}</h2>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-2 fw-medium">Total Furniture</p>
+                        <h1 class="mb-0 fw-bold display-6">{{ total_furniture }}</h1>
                     </div>
-                    <div class="stat-icon bg-warning-subtle">
-                        <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    <div class="stat-icon-large bg-info-subtle rounded-3 p-3 ms-3">
+                        <i class="bi bi-house-fill text-info fs-1"></i>
                     </div>
                 </div>
                 <div class="status-breakdown">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-circle-fill text-primary"></i> Baru
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Tersedia
                         </span>
-                        <span class="badge bg-primary-subtle text-primary">{{ ticket_new }}</span>
+                        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">{{ furniture_available }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-arrow-repeat text-warning"></i> Diproses
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-arrow-repeat text-info me-2"></i>Dipinjam
                         </span>
-                        <span class="badge bg-warning-subtle text-warning">{{ ticket_in_progress }}</span>
+                        <span class="badge bg-info-subtle text-info fs-6 px-3 py-2">{{ furniture_borrowed }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-muted">
-                            <i class="bi bi-check-circle-fill text-success"></i> Selesai
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-x-circle-fill text-danger me-2"></i>Rusak
                         </span>
-                        <span class="badge bg-success-subtle text-success">{{ ticket_completed }}</span>
+                        <span class="badge bg-danger-subtle text-danger fs-6 px-3 py-2">{{ furniture_broken }}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="small text-muted">
-                            <i class="bi bi-x-circle-fill text-danger"></i> Dibatalkan
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-tools text-warning me-2"></i>Servis
                         </span>
-                        <span class="badge bg-danger-subtle text-danger">{{ ticket_cancelled }}</span>
+                        <span class="badge bg-warning-subtle text-warning fs-6 px-3 py-2">{{ furniture_service }}</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-top">
+                    <a href="{% url 'inventory:equipment_list' %}?main_category=2" class="text-decoration-none small">
+                        Lihat semua <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-2 fw-medium">Tiket Pending</p>
+                        <h1 class="mb-0 fw-bold display-6">{{ pending_tickets }}</h1>
+                    </div>
+                    <div class="stat-icon-large bg-warning-subtle rounded-3 p-3 ms-3">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+                    </div>
+                </div>
+                <div class="status-breakdown">
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-circle-fill text-primary me-2"></i>Baru
+                        </span>
+                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">{{ ticket_new }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-arrow-repeat text-warning me-2"></i>Diproses
+                        </span>
+                        <span class="badge bg-warning-subtle text-warning fs-6 px-3 py-2">{{ ticket_in_progress }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Selesai
+                        </span>
+                        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">{{ ticket_completed }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-medium text-muted">
+                            <i class="bi bi-x-circle-fill text-danger me-2"></i>Dibatalkan
+                        </span>
+                        <span class="badge bg-danger-subtle text-danger fs-6 px-3 py-2">{{ ticket_cancelled }}</span>
                     </div>
                 </div>
                 <div class="mt-3 pt-3 border-top">

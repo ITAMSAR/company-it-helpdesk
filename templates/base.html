@@ -43,9 +43,15 @@
             padding-left: 25px;
         }
         .sidebar a.active {
-            background: rgba(52, 152, 219, 0.2);
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: #fff;
-            border-left-color: #3498db;
+            border-left-color: #fff;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            font-weight: 600;
+        }
+        .sidebar a.active i {
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         .sidebar a i { width: 20px; margin-right: 10px; }
 
@@ -285,28 +291,28 @@
                     </li>
                     {% if user.is_staff %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'users:email_list' %}">
+                        <a class="nav-link {% if 'users' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'users:email_list' %}">
                             <i class="bi bi-envelope"></i> Email Karyawan
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'inventory:equipment_list' %}">
+                        <a class="nav-link {% if 'inventory' in request.resolver_match.namespace and 'category' not in request.resolver_match.url_name %}active{% endif %}" href="{% url 'inventory:equipment_list' %}">
                             <i class="bi bi-laptop"></i> Inventaris
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'inventory:category_list' %}">
+                        <a class="nav-link {% if 'inventory' in request.resolver_match.namespace and 'category' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'inventory:category_list' %}">
                             <i class="bi bi-tags"></i> Kelola Kategori
                         </a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tickets:ticket_list' %}">
+                        <a class="nav-link {% if 'tickets' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'tickets:ticket_list' %}">
                             <i class="bi bi-ticket"></i> Tiket
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'reminder:reminder' %}">
+                        <a class="nav-link {% if 'reminder' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'reminder:reminder' %}">
                             <i class="bi bi-bell"></i> Reminder Jaringan
                         </a>
                     </li>

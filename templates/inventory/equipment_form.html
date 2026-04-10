@@ -43,15 +43,23 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Kategori</label>
-                    <select name="category" class="form-select {% if form.category.errors %}is-invalid{% endif %}" required>
-                        <option value="">-- Pilih Kategori --</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if form.category.value == cat.id or object.category.id == cat.id %}selected{% endif %}>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Kategori Utama</label>
+                    <select id="mainCategoryFormSelect" class="form-select" required>
+                        <option value="">-- Pilih Kategori Utama --</option>
+                        {% for cat in root_categories %}
+                        <option value="{{ cat.id }}" 
+                            {% if object and object.category.parent and object.category.parent.id == cat.id %}selected{% endif %}
+                            {% if object and not object.category.parent and object.category.id == cat.id %}selected{% endif %}>
                             {{ cat.name }}
                         </option>
                         {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Sub Kategori</label>
+                    <select name="category" id="subCategoryFormSelect" class="form-select {% if form.category.errors %}is-invalid{% endif %}" required disabled>
+                        <option value="">-- Pilih Sub Kategori --</option>
                     </select>
                     {% if form.category.errors %}
                     <div class="invalid-feedback">{{ form.category.errors.0 }}</div>
@@ -82,6 +90,13 @@
                 <small class="text-muted">Isi nama orang/tim yang sedang memakai peralatan ini</small>
             </div>
             <div class="mb-3">
+                <label class="form-label">Lokasi/Tempat (Opsional)</label>
+                <input type="text" name="location" class="form-control" 
+                       value="{{ form.location.value|default:'' }}" 
+                       placeholder="Contoh: Ruang IT, Lantai 2, Gedung A, dll">
+                <small class="text-muted">Isi lokasi atau tempat dimana barang ini berada</small>
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Spesifikasi</label>
                 <textarea name="specifications" class="form-control" rows="3" 
                           placeholder="Contoh: Intel Core i5, RAM 8GB, SSD 256GB">{{ form.specifications.value|default:'' }}</textarea>
@@ -107,4 +122,63 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mainCategoryFormSelect = document.getElementById('mainCategoryFormSelect');
+    const subCategoryFormSelect = document.getElementById('subCategoryFormSelect');
+    
+    // Handle main category change in form
+    mainCategoryFormSelect.addEventListener('change', function() {
+        const mainCategoryId = this.value;
+        
+        // Reset sub category
+        subCategoryFormSelect.innerHTML = '<option value="">-- Pilih Sub Kategori --</option>';
+        subCategoryFormSelect.disabled = true;
+        
+        if (mainCategoryId) {
+            // Fetch subcategories
+            fetch(`{% url 'inventory:get_subcategories' %}?parent_id=${mainCategoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.subcategories && data.subcategories.length > 0) {
+                        subCategoryFormSelect.disabled = false;
+                        data.subcategories.forEach(subcat => {
+                            const option = document.createElement('option');
+                            option.value = subcat.id;
+                            option.textContent = subcat.name;
+                            subCategoryFormSelect.appendChild(option);
+                        });
+                        
+                        // Restore selected subcategory if editing
+                        {% if object and object.category %}
+                        const selectedSubCategory = '{{ object.category.id }}';
+                        if (selectedSubCategory) {
+                            subCategoryFormSelect.value = selectedSubCategory;
+                        }
+                        {% endif %}
+                    } else {
+                        // If no subcategories, allow selecting main category
+                        const option = document.createElement('option');
+                        option.value = mainCategoryId;
+                        option.textContent = 'Gunakan kategori utama';
+                        subCategoryFormSelect.appendChild(option);
+                        subCategoryFormSelect.disabled = false;
+                        subCategoryFormSelect.value = mainCategoryId;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching subcategories:', error);
+                });
+        }
+    });
+    
+    // Initialize on page load if editing
+    {% if object and object.category %}
+    if (mainCategoryFormSelect.value) {
+        mainCategoryFormSelect.dispatchEvent(new Event('change'));
+    }
+    {% endif %}
+});
+</script>
 {% endblock %}
