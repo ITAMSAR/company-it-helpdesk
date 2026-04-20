@@ -124,8 +124,21 @@
     </div>
 </div>
 
+<!-- Django data for JavaScript -->
+{{ block.super }}
+<script id="django-data" type="application/json">
+{
+    "editingObject": {% if object %}true{% else %}false{% endif %},
+    "selectedCategoryId": {% if object and object.category %}"{{ object.category.id }}"{% else %}null{% endif %},
+    "subcategoriesUrl": "{% url 'inventory:get_subcategories' %}"
+}
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Get Django data
+    const djangoData = JSON.parse(document.getElementById('django-data').textContent);
+    
     const mainCategoryFormSelect = document.getElementById('mainCategoryFormSelect');
     const subCategoryFormSelect = document.getElementById('subCategoryFormSelect');
     
@@ -139,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (mainCategoryId) {
             // Fetch subcategories
-            fetch(`{% url 'inventory:get_subcategories' %}?parent_id=${mainCategoryId}`)
+            fetch(`${djangoData.subcategoriesUrl}?parent_id=${mainCategoryId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.subcategories && data.subcategories.length > 0) {
@@ -152,12 +165,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         
                         // Restore selected subcategory if editing
-                        {% if object and object.category %}
-                        const selectedSubCategory = '{{ object.category.id }}';
-                        if (selectedSubCategory) {
-                            subCategoryFormSelect.value = selectedSubCategory;
+                        if (djangoData.editingObject && djangoData.selectedCategoryId) {
+                            subCategoryFormSelect.value = djangoData.selectedCategoryId;
                         }
-                        {% endif %}
                     } else {
                         // If no subcategories, allow selecting main category
                         const option = document.createElement('option');
@@ -175,11 +185,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initialize on page load if editing
-    {% if object and object.category %}
-    if (mainCategoryFormSelect.value) {
+    if (djangoData.editingObject && mainCategoryFormSelect.value) {
         mainCategoryFormSelect.dispatchEvent(new Event('change'));
     }
-    {% endif %}
 });
 </script>
+
 {% endblock %}

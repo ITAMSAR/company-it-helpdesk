@@ -24,9 +24,26 @@
         <tbody>
             {% for category in categories %}
             <tr>
-                <td><strong>{{ category.name }}</strong></td>
+                <td>
+                    {% if category.parent %}
+                        <span class="text-muted">└─</span> <strong>{{ category.name }}</strong>
+                        <br><small class="text-muted">Parent: {{ category.parent.name }}</small>
+                    {% else %}
+                        <i class="bi bi-folder-fill text-primary"></i> <strong>{{ category.name }}</strong>
+                        <small class="text-muted">(Kategori Utama)</small>
+                    {% endif %}
+                </td>
                 <td>{{ category.description|default:"-" }}</td>
-                <td>{{ category.equipment.count }} item</td>
+                <td>
+                    {% if category.parent %}
+                        {{ category.equipment.count }} item
+                    {% else %}
+                        {{ category.get_total_equipment_count }} item
+                        {% if category.has_children %}
+                            <small class="text-muted">(termasuk sub-kategori)</small>
+                        {% endif %}
+                    {% endif %}
+                </td>
                 <td>{{ category.created_at|date:"d M Y" }}</td>
                 <td>
                     <div class="d-flex gap-1">

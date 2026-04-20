@@ -1,3 +1,4 @@
+{% load inventory_extras %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -13,527 +14,330 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            background: #f5f5f5;
             min-height: 100vh;
-            color: #334155;
-            overflow-x: hidden;
+            color: #333;
+            padding: 20px;
         }
         
-        .background-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.03;
-            background-image: 
-                radial-gradient(circle at 25% 25%, #ffffff 2px, transparent 2px),
-                radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
-        .main-container {
-            min-height: 100vh;
+        .success-header {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .success-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            margin: 0 auto 12px;
+            font-size: 24px;
         }
         
-        .asset-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            max-width: 480px;
-            width: 100%;
-            overflow: hidden;
-            animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(60px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, #1e293b 0%, #1e3a8a 100%);
-            color: white;
-            padding: 32px 28px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-            animation: shimmer 3s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        .asset-name {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            letter-spacing: -0.025em;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .asset-code {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
+        .success-title {
+            font-size: 20px;
             font-weight: 600;
-            display: inline-block;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            z-index: 1;
-            letter-spacing: 0.5px;
-        }
-        
-        .card-body {
-            padding: 32px 28px;
-            background: #f8fafc;
-        }
-        
-        .info-grid {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .info-item {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .info-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: #1e3a8a;
-            border-radius: 0 2px 2px 0;
-        }
-        
-        .info-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border-color: #1e3a8a;
-        }
-        
-        .info-header {
-            display: flex;
-            align-items: center;
             margin-bottom: 8px;
         }
         
-        .info-icon {
-            width: 40px;
-            height: 40px;
+        .barcode-text {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .equipment-info {
+            padding: 24px 20px;
+        }
+        
+        .equipment-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        
+        .equipment-icon {
+            width: 48px;
+            height: 48px;
+            background: #f1f5f9;
             border-radius: 12px;
-            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 16px;
-            color: white;
-            font-size: 1.1rem;
+            font-size: 20px;
+            color: #64748b;
+        }
+        
+        .equipment-details h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .equipment-details p {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-icon {
+            width: 32px;
+            height: 32px;
+            background: #f8fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .info-content {
+            flex: 1;
         }
         
         .info-label {
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 12px;
             color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            margin-bottom: 2px;
         }
         
         .info-value {
-            font-size: 1.125rem;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             color: #1e293b;
-            margin-top: 4px;
-            line-height: 1.4;
         }
         
         .status-badge {
             display: inline-flex;
             align-items: center;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: 2px solid;
-            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            gap: 4px;
         }
         
         .status-available {
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            color: #059669;
-            border-color: #86efac;
+            background: #dcfce7;
+            color: #166534;
         }
         
         .status-borrowed {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1d4ed8;
-            border-color: #93c5fd;
+            background: #dbeafe;
+            color: #1e40af;
         }
         
         .status-broken {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            background: #fee2e2;
             color: #dc2626;
-            border-color: #fca5a5;
         }
         
         .status-service {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            background: #fef3c7;
             color: #d97706;
-            border-color: #fcd34d;
         }
         
-        .scan-success {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border: 2px solid #0ea5e9;
-            border-radius: 20px;
-            padding: 24px;
-            text-align: center;
-            margin-top: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .scan-success::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(14, 165, 233, 0.1), transparent);
-            animation: scanPulse 2s infinite;
-        }
-        
-        @keyframes scanPulse {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .scan-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
-            border-radius: 50%;
+        .location-item {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            color: white;
-            font-size: 1.5rem;
-            position: relative;
-            z-index: 1;
-            animation: bounce 2s infinite;
         }
         
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+        .location-icon {
+            color: #ef4444;
+            margin-right: 8px;
         }
         
-        .scan-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .scan-time {
-            font-size: 0.875rem;
-            color: #64748b;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .network-status {
-            background: linear-gradient(135deg, #f7fee7, #ecfccb);
-            border: 1px solid #bef264;
+        .specifications {
+            background: #f8fafc;
             border-radius: 12px;
             padding: 16px;
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
+            margin-top: 8px;
         }
         
-        .network-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #65a30d, #84cc16);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.875rem;
-        }
-        
-        .network-text {
-            flex: 1;
-        }
-        
-        .network-title {
-            font-size: 0.875rem;
+        .spec-title {
+            font-size: 14px;
             font-weight: 600;
-            color: #365314;
-            margin-bottom: 2px;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
         }
         
-        .network-desc {
-            font-size: 0.75rem;
-            color: #4d7c0f;
+        .spec-icon {
+            margin-right: 8px;
+            color: #64748b;
         }
         
-        .company-footer {
-            background: #1e293b;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 20px 28px;
-            text-align: center;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .spec-list {
+            list-style: none;
         }
         
-        .company-logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: white;
+        .spec-list li {
+            font-size: 13px;
+            color: #475569;
             margin-bottom: 4px;
+            padding-left: 16px;
+            position: relative;
         }
         
-        /* Icons using Unicode symbols */
-        .icon-check::before { content: '✓'; }
-        .icon-location::before { content: '📍'; }
-        .icon-person::before { content: '👤'; }
-        .icon-tag::before { content: '🏷️'; }
-        .icon-info::before { content: 'ℹ️'; }
-        .icon-qr::before { content: '📱'; }
-        .icon-wifi::before { content: '📶'; }
-        .icon-circle::before { content: '●'; }
-        
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 15px;
-            }
-            
-            .asset-card {
-                border-radius: 20px;
-            }
-            
-            .card-header {
-                padding: 28px 24px;
-            }
-            
-            .asset-name {
-                font-size: 1.5rem;
-            }
-            
-            .card-body {
-                padding: 28px 24px;
-            }
-            
-            .info-item {
-                padding: 18px;
-            }
-            
-            .company-footer {
-                padding: 18px 24px;
-            }
+        .spec-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #94a3b8;
         }
         
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        ::selection {
-            background: #1e3a8a;
-            color: white;
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            body {
+                padding: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="background-pattern"></div>
-    
-    <div class="main-container">
-        <div class="asset-card">
-            <div class="card-header">
-                <div class="asset-name">{{ equipment.name }}</div>
-                <div class="asset-code">{{ equipment.inventory_code }}</div>
+    <div class="container">
+        <!-- Success Header -->
+        <div class="success-header">
+            <div class="success-icon">✓</div>
+            <div class="success-title">Scan Berhasil</div>
+            <div class="barcode-text">Barcode : {{ equipment.inventory_code }}</div>
+        </div>
+        
+        <!-- Equipment Info -->
+        <div class="equipment-info">
+            <!-- Equipment Header -->
+            <div class="equipment-header">
+                <div class="equipment-icon">💻</div>
+                <div class="equipment-details">
+                    <h2>{{ equipment.name }}</h2>
+                    <p>{{ equipment.category.name }}</p>
+                </div>
             </div>
             
-            <div class="card-body">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-header">
-                            <div class="info-icon">
-                                <span class="icon-check"></span>
-                            </div>
-                            <div>
-                                <div class="info-label">Status</div>
-                                <div class="info-value">
-                                    <span class="status-badge status-{{ equipment.status }}">
-                                        <span class="icon-circle"></span>
-                                        {{ equipment.get_status_display }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Info Grid -->
+            <div class="info-grid">
+                <!-- Kode Inventaris -->
+                <div class="info-item">
+                    <div class="info-icon">📋</div>
+                    <div class="info-content">
+                        <div class="info-label">Kode Inventaris</div>
+                        <div class="info-value">{{ equipment.inventory_code }}</div>
                     </div>
-                    
-                    <div class="info-item">
-                        <div class="info-header">
-                            <div class="info-icon">
-                                <span class="icon-location"></span>
-                            </div>
-                            <div>
-                                <div class="info-label">Lokasi</div>
-                                <div class="info-value">{{ equipment.location|default:"Tidak diketahui" }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-header">
-                            <div class="info-icon">
-                                <span class="icon-person"></span>
-                            </div>
-                            <div>
-                                <div class="info-label">Pengguna</div>
-                                <div class="info-value">{{ equipment.current_user|default:"Tidak ada" }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-header">
-                            <div class="info-icon">
-                                <span class="icon-tag"></span>
-                            </div>
-                            <div>
-                                <div class="info-label">Kategori</div>
-                                <div class="info-value">{{ equipment.category.name }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if equipment.specifications %}
-                    <div class="info-item">
-                        <div class="info-header">
-                            <div class="info-icon">
-                                <span class="icon-info"></span>
-                            </div>
-                            <div>
-                                <div class="info-label">Spesifikasi</div>
-                                <div class="info-value">{{ equipment.specifications }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
                 
-                <div class="scan-success">
-                    <div class="scan-icon">
-                        <span class="icon-qr"></span>
+                <!-- Kode Aset -->
+                <div class="info-item">
+                    <div class="info-icon">📄</div>
+                    <div class="info-content">
+                        <div class="info-label">Kode Aset</div>
+                        <div class="info-value">{{ equipment.category.code }}</div>
                     </div>
-                    <div class="scan-title">QR Code Berhasil Dipindai!</div>
-                    <div class="scan-time">{{ scanned_at|date:"d/m/Y • H:i:s" }}</div>
-                    
-                    <div class="network-status">
-                        <div class="network-icon">
-                            <span class="icon-wifi"></span>
-                        </div>
-                        <div class="network-text">
-                            <div class="network-title">Terhubung ke Server Lokal</div>
-                            <div class="network-desc">Data real-time dari Asset Management System</div>
+                </div>
+                
+                <!-- Kategori Utama -->
+                <div class="info-item">
+                    <div class="info-icon">📁</div>
+                    <div class="info-content">
+                        <div class="info-label">Kategori Utama</div>
+                        <div class="info-value">{{ equipment.category.parent.name|default:equipment.category.name }}</div>
+                    </div>
+                </div>
+                
+                <!-- Sub Kategori -->
+                <div class="info-item">
+                    <div class="info-icon">💻</div>
+                    <div class="info-content">
+                        <div class="info-label">Sub Kategori</div>
+                        <div class="info-value">{{ equipment.category.name }}</div>
+                    </div>
+                </div>
+                
+                <!-- Pengguna Saat Ini -->
+                <div class="info-item">
+                    <div class="info-icon">👤</div>
+                    <div class="info-content">
+                        <div class="info-label">Pengguna Saat Ini</div>
+                        <div class="info-value">{{ equipment.current_user|default:"Tidak ada" }}</div>
+                    </div>
+                </div>
+                
+                <!-- Status -->
+                <div class="info-item">
+                    <div class="info-icon">✓</div>
+                    <div class="info-content">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            <span class="status-badge status-{{ equipment.status }}">
+                                ● {{ equipment.get_status_display }}
+                            </span>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Lokasi -->
+                <div class="location-item">
+                    <span class="location-icon">📍</span>
+                    <span>{{ equipment.location|default:"Lokasi tidak diketahui" }}</span>
+                </div>
             </div>
             
-            <div class="company-footer">
-                <div class="company-logo">IT Asset Management</div>
-                <div>Professional Inventory System</div>
+            <!-- Specifications -->
+            {% if equipment.specifications %}
+            <div class="specifications">
+                <div class="spec-title">
+                    <span class="spec-icon">💻</span>
+                    Spesifikasi
+                </div>
+                <div class="spec-content">
+                    <ul class="spec-list">
+                        {% for line in equipment.specifications|parse_specs %}
+                            <li>{{ line }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
+            {% endif %}
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Enhanced click animation for info items
-            const infoItems = document.querySelectorAll('.info-item');
-            infoItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    this.style.transform = 'translateY(-2px) scale(0.98)';
-                    setTimeout(() => {
-                        this.style.transform = 'translateY(-2px) scale(1)';
-                    }, 150);
-                });
-            });
-            
-            // Add entrance animation delay for info items
-            infoItems.forEach((item, index) => {
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    item.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, 200 + (index * 100));
-            });
-            
-            // Scan success animation
-            setTimeout(() => {
-                const scanSuccess = document.querySelector('.scan-success');
-                if (scanSuccess) {
-                    scanSuccess.style.animation = 'slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
-                }
-            }, 800);
-        });
-    </script>
 </body>
 </html>

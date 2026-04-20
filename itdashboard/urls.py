@@ -17,8 +17,8 @@ urlpatterns = [
     path('tickets/', include('apps.tickets.urls')),
     path('reminder/', include('apps.reminder.urls')),
     
-    # QR Code public route - accessible from mobile
-    path('item/<str:code>/', item_detail_view, name='item_detail'),
+    # QR Code public route - accessible from mobile (handle slashes in inventory code)
+    path('item/<path:code>/', item_detail_view, name='item_detail'),
 ]
 
 if settings.DEBUG:

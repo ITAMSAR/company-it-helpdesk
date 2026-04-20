@@ -46,6 +46,18 @@ class EquipmentCategory(models.Model):
     def has_children(self):
         """Cek apakah kategori memiliki sub-kategori"""
         return self.children.exists()
+    
+    def get_total_equipment_count(self):
+        """Menghitung total equipment termasuk dari sub-kategori"""
+        # Equipment langsung di kategori ini
+        direct_count = self.equipment.count()
+        
+        # Equipment di semua sub-kategori
+        children_count = 0
+        for child in self.children.all():
+            children_count += child.get_total_equipment_count()
+        
+        return direct_count + children_count
 
 class Equipment(models.Model):
     STATUS_CHOICES = [

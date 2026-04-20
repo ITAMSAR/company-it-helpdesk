@@ -69,13 +69,25 @@
             <tr>
                 <td class="col-name">
                     <div class="fw-medium">{{ equipment.name }}</div>
-                    <small class="text-muted d-md-none">{{ equipment.category.name }}</small>
+                    <small class="text-muted d-md-none">
+                        {% if equipment.category.parent %}
+                            {{ equipment.category.parent.name }} > {{ equipment.category.name }}
+                        {% else %}
+                            {{ equipment.category.name }}
+                        {% endif %}
+                    </small>
                 </td>
                 <td class="col-code">
                     <code class="small" style="color: #e91e63; font-weight: bold;">{{ equipment.inventory_code }}</code>
                 </td>
                 <td class="col-category d-none d-md-table-cell">
-                    <span class="badge bg-info">{{ equipment.category.name }}</span>
+                    {% if equipment.category.parent %}
+                        <span class="badge bg-secondary">{{ equipment.category.parent.name }}</span>
+                        <i class="bi bi-chevron-right mx-1"></i>
+                        <span class="badge bg-info">{{ equipment.category.name }}</span>
+                    {% else %}
+                        <span class="badge bg-primary">{{ equipment.category.name }}</span>
+                    {% endif %}
                 </td>
                 <td class="col-user">
                     <div class="small">{{ equipment.current_user|default:"-" }}</div>
