@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Tambah{% endif %} Item ATK - IT Hub Internal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">{% if object %}Edit{% else %}Tambah{% endif %} Item ATK</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Item ATK</label>
+                    <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="category" class="form-select" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        {% for cat in form.category.field.queryset %}
+                        <option value="{{ cat.id }}" {% if form.category.value == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Deskripsi</label>
+                <textarea name="description" class="form-control" rows="3">{{ form.description.value|default:'' }}</textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Satuan</label>
+                    <select name="unit" class="form-select" required>
+                        {% for value, label in form.unit.field.choices %}
+                        <option value="{{ value }}" {% if form.unit.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Stok Saat Ini</label>
+                    <input type="number" name="current_stock" class="form-control" value="{{ form.current_stock.value|default:0 }}" min="0" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Stok Minimum</label>
+                    <input type="number" name="minimum_stock" class="form-control" value="{{ form.minimum_stock.value|default:10 }}" min="0" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Penerima</label>
+                <input type="text" name="recipient" class="form-control" value="{{ form.recipient.value|default:'' }}" placeholder="Contoh: Tim IT, John Doe">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Simpan
+            </button>
+            <a href="{% url 'atk:item_list' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Batal
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

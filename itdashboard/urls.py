@@ -14,6 +14,7 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('users/', include('apps.users.urls')),
     path('inventory/', include('apps.inventory.urls')),
+    path('atk/', include('apps.atk.urls')),
     path('tickets/', include('apps.tickets.urls')),
     path('reminder/', include('apps.reminder.urls')),
     

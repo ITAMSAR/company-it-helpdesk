@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Hapus Item ATK - IT Hub Internal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Hapus Item ATK</h2>
+
+<div class="card">
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Peringatan!</strong> Anda akan menghapus item ATK berikut:
+        </div>
+        
+        <div class="mb-3">
+            <strong>Nama:</strong> {{ object.name }}<br>
+            <strong>Kategori:</strong> {{ object.category.name }}<br>
+            <strong>Stok:</strong> {{ object.current_stock }} {{ object.get_unit_display }}
+        </div>
+        
+        <p>Apakah Anda yakin ingin menghapus item ini? Tindakan ini tidak dapat dibatalkan.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Ya, Hapus
+            </button>
+            <a href="{% url 'atk:item_list' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Batal
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

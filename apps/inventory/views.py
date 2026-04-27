@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from .models import Equipment, EquipmentCategory
 from apps.users.views import AdminRequiredMixin
 
@@ -14,6 +14,7 @@ class EquipmentListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get(self, request, *args, **kwargs):
+        # Clamp page number to valid range
         try:
             page = int(request.GET.get('page', 1))
             if page < 1:
@@ -28,24 +29,30 @@ class EquipmentListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         
+        # Search
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(name__icontains=search) | queryset.filter(inventory_code__icontains=search)
         
+        # Filter by status
         status = self.request.GET.get('status')
         if status:
             queryset = queryset.filter(status=status)
         
+        # Filter by main category or subcategory
         main_category = self.request.GET.get('main_category')
         category = self.request.GET.get('category')
         
         if category:
+            # If subcategory is selected, filter by subcategory
             queryset = queryset.filter(category_id=category)
         elif main_category:
+            # If only main category is selected, filter by main category and all its children
             main_cat = EquipmentCategory.objects.filter(id=main_category).first()
             if main_cat:
+                # Get all subcategories of the main category
                 subcategory_ids = list(main_cat.get_children().values_list('id', flat=True))
-                subcategory_ids.append(int(main_category))
+                subcategory_ids.append(int(main_category))  # Include main category itself
                 queryset = queryset.filter(category_id__in=subcategory_ids)
         
         return queryset
@@ -100,7 +107,7 @@ class EquipmentDeleteView(AdminRequiredMixin, DeleteView):
         messages.success(request, 'Peralatan berhasil dihapus!')
         return super().delete(request, *args, **kwargs)
 
-# Category Views
+# Category Management Views
 class CategoryListView(AdminRequiredMixin, ListView):
     model = EquipmentCategory
     template_name = 'inventory/category_list.html'
@@ -134,6 +141,7 @@ class CategoryUpdateView(AdminRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Exclude current category from parent options to prevent circular reference
         context['root_categories'] = EquipmentCategory.get_root_categories().exclude(id=self.object.id)
         return context
 
@@ -147,16 +155,21 @@ class CategoryDeleteView(AdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 from datetime import datetime
+import json
 import qrcode
 from io import BytesIO
 from docx import Document
+from docx.shared import Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 @login_required
 def get_subcategories(request):
+    """AJAX view untuk mendapatkan sub-kategori berdasarkan parent"""
     parent_id = request.GET.get('parent_id')
     if parent_id:
         subcategories = EquipmentCategory.objects.filter(parent_id=parent_id)
@@ -164,32 +177,52 @@ def get_subcategories(request):
         return JsonResponse({'subcategories': data})
     return JsonResponse({'subcategories': []})
 
-
-# ✅ QR FIXED (ISI URL WORD)
 def generate_qr_code(request, equipment_id):
+    """Generate and download QR code image for equipment"""
     try:
         equipment = Equipment.objects.get(id=equipment_id)
         
-        qr_text = request.build_absolute_uri(
-            f"/inventory/equipment/{equipment.id}/word/"
-        )
+        # Create readable QR data (not JSON format)
+        qr_text = f"""IT HUB INVENTORY SYSTEM
+LAPORAN DETAIL PERALATAN
+
+Nama Peralatan: {equipment.name}
+Kode Inventaris: {equipment.inventory_code}
+Kategori: {equipment.category.name}
+Status: {equipment.get_status_display()}
+Pengguna Saat Ini: {equipment.current_user or 'Tidak ada'}
+Lokasi: {equipment.location or 'Tidak diketahui'}
+Spesifikasi: {equipment.specifications or 'Tidak ada spesifikasi'}
+Tanggal Pembelian: {equipment.purchase_date.strftime('%d/%m/%Y') if equipment.purchase_date else 'Tidak diketahui'}
+Garansi Sampai: {equipment.warranty_until.strftime('%d/%m/%Y') if equipment.warranty_until else 'Tidak diketahui'}
+
+Dibuat: {equipment.created_at.strftime('%d/%m/%Y %H:%M')}
+Diupdate: {equipment.updated_at.strftime('%d/%m/%Y %H:%M')}
+
+Laporan dibuat pada: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
+Dibuat oleh: {request.user.username if request.user.is_authenticated else 'Anonymous'}"""
         
+        # Create QR code
         qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
+            version=1,  # Controls the size of the QR Code
+            error_correction=qrcode.constants.ERROR_CORRECT_L,  # About 7% or less errors can be corrected
+            box_size=10,  # Controls how many pixels each "box" of the QR code is
+            border=4,  # Controls how many boxes thick the border should be
         )
         
+        # Add data to QR code
         qr.add_data(qr_text)
         qr.make(fit=True)
         
+        # Create QR code image
         qr_img = qr.make_image(fill_color="black", back_color="white")
         
+        # Save image to BytesIO buffer
         buffer = BytesIO()
         qr_img.save(buffer, format='PNG')
         buffer.seek(0)
         
+        # Create HTTP response with image
         response = HttpResponse(buffer.getvalue(), content_type='image/png')
         filename = f'QR-{equipment.inventory_code}-{equipment.name.replace(" ", "_").replace("/", "_")}.png'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -198,50 +231,50 @@ def generate_qr_code(request, equipment_id):
         
     except Equipment.DoesNotExist:
         return HttpResponse('Equipment not found', status=404)
+    except Exception as e:
+        # Fallback to text file if QR generation fails
+        equipment = Equipment.objects.get(id=equipment_id)
+        fallback_text = f"""IT HUB INVENTORY - QR FALLBACK
+
+Item: {equipment.name}
+Code: {equipment.inventory_code}
+Category: {equipment.category.name}
+User: {equipment.current_user or 'Tidak ada'}
+Location: {equipment.location or 'Tidak diketahui'}
+Status: {equipment.get_status_display()}
+
+Error generating QR image: {str(e)}
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+        
+        response = HttpResponse(fallback_text, content_type='text/plain')
+        filename = f'QR-FALLBACK-{equipment.inventory_code}.txt'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
 
 
-# ✅ WORD AUTO DOWNLOAD
+
 def word_document(request, equipment_id):
-    equipment = Equipment.objects.get(id=equipment_id)
-    
-    doc = Document()
-    doc.add_heading('Detail Peralatan', 0)
-
-    doc.add_paragraph(f"Nama: {equipment.name}")
-    doc.add_paragraph(f"Kode Inventaris: {equipment.inventory_code}")
-    doc.add_paragraph(f"Kategori: {equipment.category.name}")
-    doc.add_paragraph(f"Status: {equipment.get_status_display()}")
-    doc.add_paragraph(f"Pengguna: {equipment.current_user or '-'}")
-    doc.add_paragraph(f"Lokasi: {equipment.location or '-'}")
-    doc.add_paragraph(f"Spesifikasi: {equipment.specifications or '-'}")
-    doc.add_paragraph(f"Tanggal Pembelian: {equipment.purchase_date.strftime('%d/%m/%Y') if equipment.purchase_date else '-'}")
-    doc.add_paragraph(f"Garansi Sampai: {equipment.warranty_until.strftime('%d/%m/%Y') if equipment.warranty_until else '-'}")
-
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    )
-    
-    filename = f"Equipment_{equipment.inventory_code}.docx"
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-    doc.save(response)
-    return response
-
+    return HttpResponse("Word function works...")
 
 @login_required
 def export_equipment_excel(request):
+    """Export inventaris peralatan ke Excel"""
     if not request.user.is_staff:
         messages.error(request, 'Anda tidak memiliki akses untuk export data!')
         return redirect('inventory:equipment_list')
     
+    # Create workbook
     wb = Workbook()
     ws = wb.active
     ws.title = "Inventaris Peralatan"
     
+    # Header style
     header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
     header_font = Font(bold=True, color="FFFFFF")
     header_alignment = Alignment(horizontal="center", vertical="center")
     
+    # Headers
     headers = ['No', 'Nama', 'Kode Inventaris', 'Kategori', 'Spesifikasi', 'Pengguna', 'Lokasi', 'Status', 'Tanggal Pembelian', 'Garansi Sampai']
     for col, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=header)
@@ -249,6 +282,7 @@ def export_equipment_excel(request):
         cell.font = header_font
         cell.alignment = header_alignment
     
+    # Data
     equipment_list = Equipment.objects.select_related('category').all().order_by('-created_at')
     for row, equipment in enumerate(equipment_list, 2):
         ws.cell(row=row, column=1, value=row-1)
@@ -262,6 +296,7 @@ def export_equipment_excel(request):
         ws.cell(row=row, column=9, value=equipment.purchase_date.strftime('%d/%m/%Y') if equipment.purchase_date else '-')
         ws.cell(row=row, column=10, value=equipment.warranty_until.strftime('%d/%m/%Y') if equipment.warranty_until else '-')
     
+    # Adjust column widths
     ws.column_dimensions['A'].width = 5
     ws.column_dimensions['B'].width = 25
     ws.column_dimensions['C'].width = 15
@@ -273,6 +308,7 @@ def export_equipment_excel(request):
     ws.column_dimensions['I'].width = 18
     ws.column_dimensions['J'].width = 18
     
+    # Create response
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )

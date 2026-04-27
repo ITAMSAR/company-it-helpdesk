@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.users',
     'apps.inventory',
+    'apps.atk',
     'apps.tickets',
     'apps.reminder',
     'django_crontab',

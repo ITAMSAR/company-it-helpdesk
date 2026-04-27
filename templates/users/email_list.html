@@ -52,8 +52,8 @@
                 <td>{{ email.employee_id }}</td>
                 <td>
                     {% for email_addr in email.get_email_list %}
-                        <div class="mb-1">
-                            <i class="bi bi-envelope"></i> {{ email_addr }}
+                        <div class="{% if not forloop.last %}mb-1{% endif %}">
+                            <i class="bi bi-envelope-fill me-1" style="font-size: 12px; color: #6c757d;"></i>{{ email_addr }}
                         </div>
                     {% endfor %}
                 </td>
@@ -67,12 +67,17 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'users:email_edit' email.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
-                            data-item-name="{{ email.full_name }}"
-                            data-delete-url="{% url 'users:email_delete' email.pk %}">
-                        Hapus
-                    </button>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'users:email_edit' email.pk %}" class="text-warning" title="Edit">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                        <button type="button" class="btn p-0 border-0 text-danger btn-delete-item" 
+                                data-item-name="{{ email.full_name }}"
+                                data-delete-url="{% url 'users:email_delete' email.pk %}"
+                                title="Hapus">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
             {% empty %}
@@ -84,7 +89,7 @@
 
 <div style="height: 60px;"></div>
 
-<nav class="fixed-bottom bg-white border-top py-2 px-4" style="left: 16.66667%;">
+<nav class="fixed-bottom bg-white border-top py-2 px-4" style="margin-left: var(--sidebar-width);">
     <div class="d-flex justify-content-between align-items-center">
         <small class="text-muted">
             {% if is_paginated %}

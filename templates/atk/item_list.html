@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}ATK - IT Hub Internal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil-square me-2"></i>ATK (Alat Tulis Kantor)</h2>
+    <div>
+        {% if user.is_staff %}
+        <a href="{% url 'atk:category_list' %}" class="btn btn-info me-2">
+            <i class="bi bi-tags"></i> Kelola Kategori
+        </a>
+        <a href="{% url 'atk:item_add' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Tambah Item ATK
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filter Form -->
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Cari nama item..." value="{{ request.GET.search }}">
+    </div>
+    <div class="col-md-3">
+        <select name="category" class="form-select">
+            <option value="">Semua Kategori</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="stock_status" class="form-select">
+            <option value="">Semua Status</option>
+            <option value="low" {% if request.GET.stock_status == 'low' %}selected{% endif %}>Stok Menipis</option>
+            <option value="empty" {% if request.GET.stock_status == 'empty' %}selected{% endif %}>Stok Habis</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Filter</button>
+    </div>
+</form>
+
+<!-- Items Table -->
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Nama Item</th>
+                <th>Kategori</th>
+                <th>Stok Saat Ini</th>
+                <th>Stok Minimum</th>
+                <th>Satuan</th>
+                <th>Status</th>
+                <th>Penerima</th>
+                {% if user.is_staff %}
+                <th>Aksi</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    <strong>{{ item.name }}</strong>
+                    {% if item.description %}
+                    <br><small class="text-muted">{{ item.description }}</small>
+                    {% endif %}
+                </td>
+                <td><span class="badge bg-info">{{ item.category.name }}</span></td>
+                <td>
+                    <span class="fw-bold {% if item.current_stock == 0 %}text-danger{% elif item.is_low_stock %}text-warning{% else %}text-success{% endif %}">
+                        {{ item.current_stock }}
+                    </span>
+                </td>
+                <td>{{ item.minimum_stock }}</td>
+                <td>{{ item.get_unit_display }}</td>
+                <td>
+                    {% if item.current_stock == 0 %}
+                        <span class="badge bg-danger">Habis</span>
+                    {% elif item.is_low_stock %}
+                        <span class="badge bg-warning">Menipis</span>
+                    {% else %}
+                        <span class="badge bg-success">Aman</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.recipient|default:"-" }}</td>
+                {% if user.is_staff %}
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'atk:item_edit' item.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                        <a href="{% url 'atk:item_delete' item.pk %}" class="btn btn-sm btn-danger" title="Hapus">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr><td colspan="{% if user.is_staff %}8{% else %}7{% endif %}" class="text-center py-4">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                <span class="text-muted">Belum ada item ATK</span>
+            </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<a href="{% url 'atk:item_list' %}" class="btn btn-secondary mt-3">
+    <i class="bi bi-arrow-left"></i> Kembali ke ATK
+</a>
+
+{% endblock %}

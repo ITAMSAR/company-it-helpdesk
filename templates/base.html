@@ -296,13 +296,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'inventory' in request.resolver_match.namespace and 'category' not in request.resolver_match.url_name %}active{% endif %}" href="{% url 'inventory:equipment_list' %}">
+                        <a class="nav-link {% if 'inventory' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'inventory:equipment_list' %}">
                             <i class="bi bi-laptop"></i> Inventaris
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'inventory' in request.resolver_match.namespace and 'category' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'inventory:category_list' %}">
-                            <i class="bi bi-tags"></i> Kelola Kategori
+                        <a class="nav-link {% if 'atk' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'atk:item_list' %}">
+                            <i class="bi bi-pencil-square"></i> ATK
                         </a>
                     </li>
                     {% endif %}
