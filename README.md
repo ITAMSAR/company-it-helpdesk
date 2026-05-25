@@ -21,11 +21,13 @@ python --version
 ### Windows (Termudah):
 ```bash
 # 1. Double-click:
-scripts\setup.bat
+scripts\IT_DASHBOARD.bat
 
-# 2. Ikuti instruksi, buat admin
-# 3. Double-click:
-scripts\run.bat
+# 2. Untuk setup pertama kali, pilih menu:
+6
+
+# 3. Untuk menjalankan server, pilih menu:
+1
 
 # 4. Buka browser:
 http://127.0.0.1:8000
@@ -57,10 +59,12 @@ Untuk akses dari laptop/device lain di jaringan yang sama:
 
 ```bash
 # 1. Setup firewall (sekali saja, run as admin):
-scripts\SETUP_FIREWALL.bat
+scripts\IT_DASHBOARD.bat
+# lalu pilih menu 12
 
 # 2. Jalankan server dalam mode network:
-scripts\run_network.bat
+scripts\IT_DASHBOARD.bat
+# lalu pilih menu 2
 
 # 3. Akses dari device lain:
 http://[IP-ADDRESS-PC]:8000
@@ -97,7 +101,7 @@ Lihat **docs/NETWORK_ACCESS_GUIDE.md** untuk panduan lengkap.
 ### Error: "no such table"
 ```bash
 python manage.py migrate
-# Atau: scripts\UPDATE_DATABASE.bat
+# Atau: scripts\IT_DASHBOARD.bat
 ```
 
 ### Error: "Pillow failed to build"
@@ -119,9 +123,9 @@ python manage.py changepassword admin
 ```
 
 ### Tidak bisa akses dari laptop
-1. Pastikan firewall sudah di-setup (scripts\SETUP_FIREWALL.bat as admin)
+1. Pastikan firewall sudah di-setup (scripts\IT_DASHBOARD.bat as admin)
 2. Pastikan PC dan laptop di jaringan yang sama
-3. Gunakan `scripts\run_network.bat` bukan `scripts\run.bat`
+3. Pilih menu `2` untuk server network / LAN
 4. Lihat docs/NETWORK_ACCESS_GUIDE.md
 
 ## 📚 Dokumentasi
@@ -134,22 +138,13 @@ python manage.py changepassword admin
 - **docs/DATABASE_MIGRATION_GUIDE.md** - Panduan update database
 - **docs/NETWORK_ACCESS_GUIDE.md** - Akses dari jaringan lokal
 
-## 🛠️ Scripts
+## Tools
 
-**Setup & Run:**
-- `scripts\setup.bat` - Setup otomatis (first time)
-- `scripts\run.bat` - Jalankan server (localhost only)
-- `scripts\run_network.bat` - Jalankan server (network access)
+Semua command Windows sekarang digabung di satu launcher:
 
-**Database:**
-- `scripts\UPDATE_DATABASE.bat` - Update database schema
-- `scripts\UPDATE_TICKET_STATUS.bat` - Update ticket status fields
-- `scripts\RESTART_FRESH.bat` - Reset database (WARNING: hapus semua data!)
+- `scripts\IT_DASHBOARD.bat` - menu setup, start server, migrate, user management, firewall, dan reset database
 
-**Firewall:**
-- `scripts\SETUP_FIREWALL.bat` - Setup firewall untuk network access (run as admin)
-
-## 📦 Dependencies
+## Dependencies
 
 - Django >= 5.0, < 5.1
 - Pillow >= 10.0

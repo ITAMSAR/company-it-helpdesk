@@ -16,7 +16,7 @@
 ### Q: Apakah bisa dijalankan di Mac/Linux?
 **A:** Ya! Aplikasi ini cross-platform. Untuk Mac/Linux, gunakan command manual di README.md (skip file .bat).
 
-### Q: Error "Python not found" saat menjalankan scripts\setup.bat
+### Q: Error "Python not found" saat menjalankan scripts\IT_DASHBOARD.bat
 **A:** Install Python dari python.org dan pastikan centang "Add Python to PATH" saat instalasi.
 
 ## Penggunaan

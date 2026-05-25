@@ -22,7 +22,7 @@ Migration **TIDAK** diperlukan saat:
 ### **Metode 1: Gunakan Script (Recommended)**
 
 ```bash
-scripts\UPDATE_DATABASE.bat
+scripts\IT_DASHBOARD.bat
 ```
 
 Script akan:

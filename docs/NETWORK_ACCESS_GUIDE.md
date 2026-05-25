@@ -4,14 +4,14 @@
 
 ### Langkah 1: Setup Firewall (Hanya Sekali)
 
-1. **Klik kanan** file `scripts\SETUP_FIREWALL.bat`
+1. **Klik kanan** file `scripts\IT_DASHBOARD.bat`
 2. Pilih **"Run as administrator"**
 3. Klik **Yes** pada UAC prompt
 4. Tunggu sampai muncul pesan "SUCCESS!"
 
 ### Langkah 2: Jalankan Server dalam Mode Network
 
-1. Double-click file `scripts\run_network.bat`
+1. Double-click file `scripts\IT_DASHBOARD.bat`
 2. Server akan berjalan di `0.0.0.0:8000`
 3. Jangan tutup window command prompt
 
@@ -39,7 +39,7 @@ Jika IP address PC berubah, cek dengan cara:
 ### Tidak Bisa Akses dari Laptop
 
 **Problem 1: Connection Timeout**
-- Pastikan firewall sudah di-setup (jalankan scripts\SETUP_FIREWALL.bat as admin)
+- Pastikan firewall sudah di-setup (jalankan scripts\IT_DASHBOARD.bat as admin)
 - Cek apakah PC dan laptop di jaringan WiFi/LAN yang sama
 - Coba matikan antivirus sementara untuk test
 
@@ -49,7 +49,7 @@ Jika IP address PC berubah, cek dengan cara:
 - Update URL di browser laptop
 
 **Problem 3: Server Not Running**
-- Pastikan `scripts\run_network.bat` masih berjalan di PC
+- Pastikan `scripts\IT_DASHBOARD.bat` masih berjalan di PC
 - Jangan tutup window command prompt
 - Cek apakah ada error di console
 
@@ -93,10 +93,10 @@ python manage.py collectstatic --noinput
 
 1. **IP Statis:** Untuk menghindari IP berubah-ubah, set static IP di router untuk PC kamu
 2. **Bookmark:** Save URL `http://192.168.1.4:8000` di bookmark laptop
-3. **Auto-start:** Bisa buat shortcut `scripts\run_network.bat` di Startup folder untuk auto-run saat PC nyala
+3. **Auto-start:** Bisa buat shortcut `scripts\IT_DASHBOARD.bat` di Startup folder untuk auto-run saat PC nyala
 
 ## File Penting
 
-- `scripts\run_network.bat` - Jalankan server dalam mode network
-- `scripts\SETUP_FIREWALL.bat` - Setup firewall (run as admin, sekali saja)
-- `scripts\run.bat` - Jalankan server normal (hanya localhost)
+- `scripts\IT_DASHBOARD.bat` - Jalankan server dalam mode network
+- `scripts\IT_DASHBOARD.bat` - Setup firewall (run as admin, sekali saja)
+- `scripts\IT_DASHBOARD.bat` - Jalankan server normal (hanya localhost)

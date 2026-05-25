@@ -9,12 +9,12 @@
    - Centang "Add Python to PATH" saat install
 
 2. **Jalankan Setup**
-   - Double-click file `scripts\setup.bat`
+   - Double-click file `scripts\IT_DASHBOARD.bat`
    - Ikuti instruksi untuk membuat akun admin
    - Tunggu sampai selesai
 
 3. **Jalankan Server**
-   - Double-click file `scripts\run.bat`
+   - Double-click file `scripts\IT_DASHBOARD.bat`
    - Buka browser: http://127.0.0.1:8000
 
 ### Cara Manual
