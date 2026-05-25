@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 echo ========================================
 echo Ganti Password User - IT Hub Internal
 echo ========================================

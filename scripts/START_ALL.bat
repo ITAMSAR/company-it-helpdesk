@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 title IT Dashboard - Start All
 color 0A
 echo.

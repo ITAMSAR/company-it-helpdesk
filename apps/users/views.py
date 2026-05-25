@@ -32,8 +32,9 @@ class DashboardView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         from django.utils import timezone
-        from django.db.models import Count
+        from django.db.models import F, Sum
         from apps.inventory.models import EquipmentCategory
+        from apps.atk.models import ATKItem
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now()
         if self.request.user.is_staff:
@@ -86,6 +87,32 @@ class DashboardView(LoginRequiredMixin, ListView):
             context['ticket_in_progress'] = Ticket.objects.filter(status='in_progress').count()
             context['ticket_completed'] = Ticket.objects.filter(status='completed').count()
             context['ticket_cancelled'] = Ticket.objects.filter(status='cancelled').count()
+
+            # ATK stock overview for dashboard chart
+            atk_items = ATKItem.objects.select_related('category')
+            context['atk_total_items'] = atk_items.count()
+            context['atk_total_stock'] = atk_items.aggregate(total=Sum('current_stock'))['total'] or 0
+            context['atk_low_stock'] = atk_items.filter(
+                current_stock__gt=0,
+                current_stock__lte=F('minimum_stock')
+            ).count()
+            context['atk_out_of_stock'] = atk_items.filter(current_stock=0).count()
+
+            atk_category_rows = (
+                atk_items.values('category__name')
+                .annotate(total_stock=Sum('current_stock'), item_count=Count('id'))
+                .order_by('-total_stock', 'category__name')[:6]
+            )
+            max_stock = max([row['total_stock'] or 0 for row in atk_category_rows], default=0)
+            context['atk_category_chart'] = [
+                {
+                    'name': row['category__name'] or 'Tanpa Kategori',
+                    'stock': row['total_stock'] or 0,
+                    'items': row['item_count'],
+                    'percent': round(((row['total_stock'] or 0) / max_stock) * 100) if max_stock else 0,
+                }
+                for row in atk_category_rows
+            ]
         else:
             context['my_tickets'] = Ticket.objects.filter(reporter=self.request.user).count()
         return context

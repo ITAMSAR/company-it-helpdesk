@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 echo ========================================
 echo Buat User Baru - IT Hub Internal
 echo ========================================

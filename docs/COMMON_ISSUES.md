@@ -350,10 +350,9 @@ python manage.py migrate
 Jika masalah Anda tidak ada di sini:
 
 1. ✅ Baca [FAQ.md](FAQ.md)
-2. ✅ Baca [INSTALL_TROUBLESHOOTING.md](INSTALL_TROUBLESHOOTING.md)
-3. ✅ Baca [PYTHON_VERSION_GUIDE.md](PYTHON_VERSION_GUIDE.md)
-4. ✅ Jalankan `python check_setup.py`
-5. ✅ Google error message lengkap
+2. ✅ Baca [DATABASE_MIGRATION_GUIDE.md](DATABASE_MIGRATION_GUIDE.md)
+3. ✅ Jalankan `python check_setup.py`
+4. ✅ Google error message lengkap
 6. ✅ Buat issue di repository
 
 ---

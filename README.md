@@ -21,11 +21,11 @@ python --version
 ### Windows (Termudah):
 ```bash
 # 1. Double-click:
-setup.bat
+scripts\setup.bat
 
 # 2. Ikuti instruksi, buat admin
 # 3. Double-click:
-run.bat
+scripts\run.bat
 
 # 4. Buka browser:
 http://127.0.0.1:8000
@@ -57,16 +57,16 @@ Untuk akses dari laptop/device lain di jaringan yang sama:
 
 ```bash
 # 1. Setup firewall (sekali saja, run as admin):
-SETUP_FIREWALL.bat
+scripts\SETUP_FIREWALL.bat
 
 # 2. Jalankan server dalam mode network:
-run_network.bat
+scripts\run_network.bat
 
 # 3. Akses dari device lain:
 http://[IP-ADDRESS-PC]:8000
 ```
 
-Lihat **NETWORK_ACCESS_GUIDE.md** untuk panduan lengkap.
+Lihat **docs/NETWORK_ACCESS_GUIDE.md** untuk panduan lengkap.
 
 ## 🎯 Fitur Utama
 
@@ -97,7 +97,7 @@ Lihat **NETWORK_ACCESS_GUIDE.md** untuk panduan lengkap.
 ### Error: "no such table"
 ```bash
 python manage.py migrate
-# Atau: UPDATE_DATABASE.bat
+# Atau: scripts\UPDATE_DATABASE.bat
 ```
 
 ### Error: "Pillow failed to build"
@@ -119,36 +119,35 @@ python manage.py changepassword admin
 ```
 
 ### Tidak bisa akses dari laptop
-1. Pastikan firewall sudah di-setup (SETUP_FIREWALL.bat as admin)
+1. Pastikan firewall sudah di-setup (scripts\SETUP_FIREWALL.bat as admin)
 2. Pastikan PC dan laptop di jaringan yang sama
-3. Gunakan `run_network.bat` bukan `run.bat`
-4. Lihat NETWORK_ACCESS_GUIDE.md
+3. Gunakan `scripts\run_network.bat` bukan `scripts\run.bat`
+4. Lihat docs/NETWORK_ACCESS_GUIDE.md
 
 ## 📚 Dokumentasi
 
 - **README.md** - Quick start & overview
-- **QUICK_START.md** - Panduan instalasi detail
-- **PANDUAN_PENGGUNAAN.md** - User manual lengkap
-- **FAQ.md** - Pertanyaan umum
-- **COMMON_ISSUES.md** - Masalah umum & solusi
-- **INSTALL_TROUBLESHOOTING.md** - Troubleshooting instalasi
-- **DATABASE_MIGRATION_GUIDE.md** - Panduan update database
-- **NETWORK_ACCESS_GUIDE.md** - Akses dari jaringan lokal
+- **docs/QUICK_START.md** - Panduan instalasi detail
+- **docs/PANDUAN_PENGGUNAAN.md** - User manual lengkap
+- **docs/FAQ.md** - Pertanyaan umum
+- **docs/COMMON_ISSUES.md** - Masalah umum & solusi
+- **docs/DATABASE_MIGRATION_GUIDE.md** - Panduan update database
+- **docs/NETWORK_ACCESS_GUIDE.md** - Akses dari jaringan lokal
 
 ## 🛠️ Scripts
 
 **Setup & Run:**
-- `setup.bat` - Setup otomatis (first time)
-- `run.bat` - Jalankan server (localhost only)
-- `run_network.bat` - Jalankan server (network access)
+- `scripts\setup.bat` - Setup otomatis (first time)
+- `scripts\run.bat` - Jalankan server (localhost only)
+- `scripts\run_network.bat` - Jalankan server (network access)
 
 **Database:**
-- `UPDATE_DATABASE.bat` - Update database schema
-- `UPDATE_TICKET_STATUS.bat` - Update ticket status fields
-- `RESTART_FRESH.bat` - Reset database (WARNING: hapus semua data!)
+- `scripts\UPDATE_DATABASE.bat` - Update database schema
+- `scripts\UPDATE_TICKET_STATUS.bat` - Update ticket status fields
+- `scripts\RESTART_FRESH.bat` - Reset database (WARNING: hapus semua data!)
 
 **Firewall:**
-- `SETUP_FIREWALL.bat` - Setup firewall untuk network access (run as admin)
+- `scripts\SETUP_FIREWALL.bat` - Setup firewall untuk network access (run as admin)
 
 ## 📦 Dependencies
 

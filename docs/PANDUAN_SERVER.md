@@ -4,14 +4,14 @@
 
 Di folder project ini ada 3 file batch yang memudahkan Anda:
 
-- **`START_SERVER.bat`** - Untuk nyalain server
-- **`STOP_SERVER.bat`** - Untuk matiin server
-- **`CHECK_SERVER.bat`** - Untuk cek status server
+- **`scripts\START_SERVER.bat`** - Untuk nyalain server
+- **`scripts\STOP_SERVER.bat`** - Untuk matiin server
+- **`scripts\CHECK_SERVER.bat`** - Untuk cek status server
 
 ## 🔥 Cara Nyalain Server (MUDAH!)
 
 ### Metode 1: Double-click File Batch
-1. **Double-click `START_SERVER.bat`**
+1. **Double-click `scripts\START_SERVER.bat`**
 2. **Tunggu sampai muncul**: "Starting development server at http://0.0.0.0:8000/"
 3. **Server siap digunakan!**
 
@@ -24,7 +24,7 @@ Di folder project ini ada 3 file batch yang memudahkan Anda:
 ## 🛑 Cara Matiin Server
 
 ### Metode 1: Double-click File Batch
-- **Double-click `STOP_SERVER.bat`**
+- **Double-click `scripts\STOP_SERVER.bat`**
 
 ### Metode 2: Manual
 - Di window server yang terbuka, tekan **Ctrl + C**
@@ -33,7 +33,7 @@ Di folder project ini ada 3 file batch yang memudahkan Anda:
 ## 🔍 Cara Cek Status Server
 
 ### Metode 1: Double-click File Batch
-- **Double-click `CHECK_SERVER.bat`**
+- **Double-click `scripts\CHECK_SERVER.bat`**
 
 ### Metode 2: Manual
 - Buka browser, ketik: `http://localhost:8000`
@@ -56,7 +56,7 @@ Di folder project ini ada 3 file batch yang memudahkan Anda:
 
 ### Problem: "Port 8000 sudah digunakan"
 **Solusi**: 
-1. Jalankan `STOP_SERVER.bat`
+1. Jalankan `scripts\STOP_SERVER.bat`
 2. Atau restart komputer
 3. Atau ganti port: `python manage.py runserver 0.0.0.0:8001`
 
@@ -76,15 +76,15 @@ pip install django qrcode pillow openpyxl
 
 1. **Jangan tutup window server** selama mau digunakan
 2. **Server otomatis mati** kalau laptop dimatikan
-3. **Setelah restart laptop**, jalankan lagi `START_SERVER.bat`
+3. **Setelah restart laptop**, jalankan lagi `scripts\START_SERVER.bat`
 4. **Untuk akses dari HP**, pastikan WiFi sama
 5. **IP bisa berubah** setelah restart router
 
 ## 🚨 Jika Ada Masalah
 
-1. **Cek status** dengan `CHECK_SERVER.bat`
-2. **Stop server** dengan `STOP_SERVER.bat`
-3. **Start ulang** dengan `START_SERVER.bat`
+1. **Cek status** dengan `scripts\CHECK_SERVER.bat`
+2. **Stop server** dengan `scripts\STOP_SERVER.bat`
+3. **Start ulang** dengan `scripts\START_SERVER.bat`
 4. **Restart laptop** jika masih bermasalah
 
 ## 📞 Quick Commands

@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 title Check IT Dashboard Server Status
 color 0B
 echo.

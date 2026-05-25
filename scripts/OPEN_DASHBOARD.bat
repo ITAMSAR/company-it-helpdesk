@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 title Open IT Dashboard
 color 0B
 echo.

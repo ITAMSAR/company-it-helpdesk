@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 title Stop IT Dashboard Server
 color 0C
 echo.

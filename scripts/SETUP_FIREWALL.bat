@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 echo ========================================
 echo Setup Firewall untuk IT Hub Internal
 echo ========================================

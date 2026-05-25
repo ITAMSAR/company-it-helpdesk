@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 cls
 echo ========================================
 echo UPDATE TICKET STATUS - Add Notes Field
