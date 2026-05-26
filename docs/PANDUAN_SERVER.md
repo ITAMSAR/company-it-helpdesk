@@ -12,13 +12,13 @@ Di folder project ini ada 3 file batch yang memudahkan Anda:
 
 ### Metode 1: Double-click File Batch
 1. **Double-click `scripts\IT_DASHBOARD.bat`**
-2. **Tunggu sampai muncul**: "Starting development server at http://0.0.0.0:8000/"
+2. **Tunggu sampai muncul**: "Starting development server at http://0.0.0.0:9000/"
 3. **Server siap digunakan!**
 
 ### Metode 2: Manual via Command Prompt
 1. Buka **Command Prompt** atau **PowerShell**
 2. Ketik: `cd "D:\Project Coding\company-it-helpdesk"`
-3. Ketik: `python manage.py runserver 0.0.0.0:8000`
+3. Ketik: `python manage.py runserver 0.0.0.0:9000`
 4. Tekan **Enter**
 
 ## 🛑 Cara Matiin Server
@@ -36,7 +36,7 @@ Di folder project ini ada 3 file batch yang memudahkan Anda:
 - **Double-click `scripts\IT_DASHBOARD.bat`**
 
 ### Metode 2: Manual
-- Buka browser, ketik: `http://localhost:8000`
+- Buka browser, ketik: `http://localhost:9000`
 - Jika muncul halaman login = server aktif
 - Jika error/tidak bisa akses = server mati
 
@@ -44,17 +44,17 @@ Di folder project ini ada 3 file batch yang memudahkan Anda:
 
 | Fungsi | URL |
 |--------|-----|
-| **Dashboard Utama** | `http://192.168.1.11:8000` |
-| **Inventory** | `http://192.168.1.11:8000/inventory/` |
-| **Test Mobile** | `http://192.168.1.11:8000/inventory/test-mobile/` |
-| **Admin Panel** | `http://192.168.1.11:8000/admin/` |
+| **Dashboard Utama** | `http://192.168.1.11:9000` |
+| **Inventory** | `http://192.168.1.11:9000/inventory/` |
+| **Test Mobile** | `http://192.168.1.11:9000/inventory/test-mobile/` |
+| **Admin Panel** | `http://192.168.1.11:9000/admin/` |
 
 ## 🔧 Troubleshooting
 
 ### Problem: "python tidak dikenali"
 **Solusi**: Install Python atau tambahkan Python ke PATH
 
-### Problem: "Port 8000 sudah digunakan"
+### Problem: "Port 9000 sudah digunakan"
 **Solusi**: 
 1. Jalankan `scripts\IT_DASHBOARD.bat`
 2. Atau restart komputer
@@ -94,7 +94,7 @@ pip install django qrcode pillow openpyxl
 ipconfig
 
 # Test server lokal
-curl http://localhost:8000
+curl http://localhost:9000
 
 # Lihat proses Python yang jalan
 tasklist | findstr python

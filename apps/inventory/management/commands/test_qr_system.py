@@ -17,7 +17,7 @@ class Command(BaseCommand):
         except:
             local_ip = "192.168.1.1"
         
-        self.stdout.write(f'🌐 IP Server Terdeteksi: {local_ip}:8000')
+        self.stdout.write(f'🌐 IP Server Terdeteksi: {local_ip}:9000')
         
         # Ambil beberapa contoh equipment
         sample_equipment = Equipment.objects.all()[:5]
@@ -30,7 +30,7 @@ class Command(BaseCommand):
         self.stdout.write('=' * 60)
         
         for equipment in sample_equipment:
-            qr_url = f"http://{local_ip}:8000/item/{equipment.inventory_code}/"
+            qr_url = f"http://{local_ip}:9000/item/{equipment.inventory_code}/"
             self.stdout.write(f'📦 {equipment.name}')
             self.stdout.write(f'   Kode: {equipment.inventory_code}')
             self.stdout.write(f'   URL:  {qr_url}')
@@ -45,5 +45,5 @@ class Command(BaseCommand):
         self.stdout.write('4. Scan QR code dengan HP (pastikan 1 jaringan WiFi)')
         self.stdout.write('5. Browser HP akan membuka halaman detail barang')
         
-        self.stdout.write(f'\n🔧 Test URL manual: http://{local_ip}:8000/inventory/test-mobile/')
+        self.stdout.write(f'\n🔧 Test URL manual: http://{local_ip}:9000/inventory/test-mobile/')
         self.stdout.write('   (Buka di HP untuk test koneksi jaringan)')

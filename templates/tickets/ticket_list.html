@@ -27,7 +27,7 @@
             <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>Baru</option>
             <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>Diproses</option>
             <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Selesai</option>
-            <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Ditolak</option>
+            <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Tidak Selesai</option>
         </select>
     </div>
     <div class="col-md-2">

@@ -58,7 +58,7 @@ Baca: [PYTHON_VERSION_GUIDE.md](PYTHON_VERSION_GUIDE.md)
 
 ---
 
-## 🚫 Port 8000 Already in Use
+## 🚫 Port 9000 Already in Use
 
 ### ❓ Pertanyaan:
 "Error: That port is already in use"
@@ -71,15 +71,15 @@ python manage.py runserver 8001
 ```
 Akses: http://127.0.0.1:8001
 
-**Opsi 2: Kill process yang menggunakan port 8000**
+**Opsi 2: Kill process yang menggunakan port 9000**
 ```bash
 # Windows:
-netstat -ano | findstr :8000
+netstat -ano | findstr :9000
 taskkill /PID <PID_NUMBER> /F
 
 # Contoh:
-# netstat -ano | findstr :8000
-# TCP    0.0.0.0:8000    0.0.0.0:0    LISTENING    12345
+# netstat -ano | findstr :9000
+# TCP    0.0.0.0:9000    0.0.0.0:0    LISTENING    12345
 # taskkill /PID 12345 /F
 ```
 
@@ -155,16 +155,16 @@ python manage.py createsuperuser
 **Cek 1: Server benar-benar running?**
 ```bash
 python manage.py runserver
-# Harus muncul: Starting development server at http://127.0.0.1:8000/
+# Harus muncul: Starting development server at http://127.0.0.1:9000/
 ```
 
 **Cek 2: URL yang benar**
-- ✅ http://127.0.0.1:8000
-- ✅ http://localhost:8000
-- ❌ http://127.0.0.1:8000/ (tanpa http)
+- ✅ http://127.0.0.1:9000
+- ✅ http://localhost:9000
+- ❌ http://127.0.0.1:9000/ (tanpa http)
 
 **Cek 3: Firewall**
-- Pastikan firewall tidak block port 8000
+- Pastikan firewall tidak block port 9000
 - Coba disable firewall sementara untuk test
 
 ---

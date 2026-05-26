@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajukan ATK - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">ATK</span>
+            <h2 class="dashboard-title">Ajukan Kebutuhan ATK</h2>
+            <p class="dashboard-subtitle">Isi item yang dibutuhkan, jumlah, dan keperluannya. Admin akan menerima pengajuan ini untuk diproses.</p>
+        </div>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Form</span>
+                <h3>Detail Pengajuan</h3>
+            </div>
+        </div>
+        <div class="p-4">
+            <form method="post">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Daftar Barang</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAtkLine()">
+                            <i class="bi bi-plus-circle"></i>
+                            Tambah Barang
+                        </button>
+                    </div>
+                    <div id="atkLines" class="atk-request-lines">
+                        <div class="atk-request-line">
+                            <div>
+                                <label class="form-label">Pilih Item ATK</label>
+                                <select name="item" class="form-select">
+                                    <option value="">-- Item tidak ada di list / lainnya --</option>
+                                    {% for item in atk_items %}
+                                    <option value="{{ item.id }}">{{ item.name }} - stok {{ item.current_stock }} {{ item.get_unit_display }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Nama Item Lainnya</label>
+                                <input type="text" name="custom_item_name" class="form-control" placeholder="Contoh: Spidol whiteboard">
+                            </div>
+                            <div>
+                                <label class="form-label">Jumlah</label>
+                                <input type="number" name="quantity" class="form-control" value="1" min="1">
+                            </div>
+                            <div class="atk-line-action">
+                                <button type="button" class="btn btn-outline-danger" onclick="removeAtkLine(this)" title="Hapus baris">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Keperluan</label>
+                    <textarea name="purpose" class="form-control" rows="4" required placeholder="Jelaskan kebutuhan ATK ini untuk apa...">{{ form.purpose.value|default:'' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send"></i>
+                    Kirim Pengajuan
+                </button>
+                <a href="{% url 'atk:request_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Batal
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    .atk-request-lines {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .atk-request-line {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 0.9fr) minmax(100px, 0.35fr) auto;
+        gap: 0.75rem;
+        align-items: end;
+        padding: 0.85rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .atk-line-action .btn {
+        width: 42px;
+        height: 42px;
+        padding: 0;
+    }
+
+    @media (max-width: 992px) {
+        .atk-request-line {
+            grid-template-columns: 1fr;
+        }
+
+        .atk-line-action .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+function addAtkLine() {
+    const container = document.getElementById('atkLines');
+    const firstLine = container.querySelector('.atk-request-line');
+    const newLine = firstLine.cloneNode(true);
+
+    newLine.querySelectorAll('select, input').forEach(function (field) {
+        if (field.tagName === 'SELECT') {
+            field.selectedIndex = 0;
+        } else if (field.type === 'number') {
+            field.value = 1;
+        } else {
+            field.value = '';
+        }
+    });
+
+    container.appendChild(newLine);
+}
+
+function removeAtkLine(button) {
+    const container = document.getElementById('atkLines');
+    if (container.querySelectorAll('.atk-request-line').length === 1) {
+        return;
+    }
+    button.closest('.atk-request-line').remove();
+}
+</script>
+{% endblock %}

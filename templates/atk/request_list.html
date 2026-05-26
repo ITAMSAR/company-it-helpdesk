@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Pengajuan ATK - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">ATK</span>
+            <h2 class="dashboard-title">{% if user.is_staff %}Pengajuan ATK{% else %}Pengajuan ATK Saya{% endif %}</h2>
+            <p class="dashboard-subtitle">
+                {% if user.is_staff %}
+                Pantau kebutuhan ATK dari user dan proses persetujuannya.
+                {% else %}
+                Ajukan kebutuhan ATK dan pantau status persetujuannya dari admin.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'atk:request_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            <span>Ajukan ATK</span>
+        </a>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Status</span>
+                <h3>Daftar Pengajuan</h3>
+            </div>
+            <form method="get" class="d-flex gap-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Menunggu</option>
+                    <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Disetujui</option>
+                    <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Ditolak</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="table-responsive dashboard-ticket-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        {% if user.is_staff %}<th>Pemohon</th>{% endif %}
+                        <th>Jumlah</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request_item in requests %}
+                    <tr>
+                        <td class="align-middle">
+                            <strong>{{ request_item.display_item_name }}</strong>
+                            <br><small class="text-muted">{{ request_item.purpose|truncatechars:70 }}</small>
+                        </td>
+                        {% if user.is_staff %}
+                        <td class="align-middle">{{ request_item.requester.username }}</td>
+                        {% endif %}
+                        <td class="align-middle">{{ request_item.total_quantity }}</td>
+                        <td class="align-middle">
+                            {% if request_item.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">{{ request_item.get_status_display }}</span>
+                            {% elif request_item.status == 'approved' %}
+                            <span class="badge bg-success">{{ request_item.get_status_display }}</span>
+                            {% else %}
+                            <span class="badge bg-danger">{{ request_item.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle text-muted">{{ request_item.created_at|date:"d M Y H:i" }}</td>
+                        <td class="align-middle">
+                            <a href="{% url 'atk:request_detail' request_item.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                                <span>Detail</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if user.is_staff %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">
+                            <i class="bi bi-inboxes fs-1 d-block mb-2"></i>
+                            Belum ada pengajuan ATK.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

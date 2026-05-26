@@ -42,18 +42,18 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR('❌ Tidak ada data equipment!'))
                 return
             
-            self.stdout.write(f'🔍 Generate QR code untuk test dengan IP: {local_ip}:8000\n')
+            self.stdout.write(f'🔍 Generate QR code untuk test dengan IP: {local_ip}:9000\n')
             
             for item in sample_items:
                 self.generate_qr_for_item(item, local_ip)
         
         self.stdout.write(f'\n✅ QR code berhasil di-generate!')
-        self.stdout.write(f'📱 Test dengan buka: http://{local_ip}:8000/inventory/test-mobile/ di HP')
+        self.stdout.write(f'📱 Test dengan buka: http://{local_ip}:9000/inventory/test-mobile/ di HP')
         self.stdout.write('🔧 Pastikan server berjalan dengan: START_NETWORK_SERVER.bat')
     
     def generate_qr_for_item(self, equipment, local_ip):
         # Create URL
-        item_url = f"http://{local_ip}:8000/item/{equipment.inventory_code}/"
+        item_url = f"http://{local_ip}:9000/item/{equipment.inventory_code}/"
         
         # Generate QR code
         qr = qrcode.QRCode(

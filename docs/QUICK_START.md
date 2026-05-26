@@ -15,7 +15,7 @@
 
 3. **Jalankan Server**
    - Double-click file `scripts\IT_DASHBOARD.bat`
-   - Buka browser: http://127.0.0.1:8000
+   - Buka browser: http://127.0.0.1:9000
 
 ### Cara Manual
 
@@ -40,13 +40,13 @@ python manage.py runserver
 
 ## Login Pertama Kali
 
-1. Buka: http://127.0.0.1:8000
+1. Buka: http://127.0.0.1:9000
 2. Login dengan username dan password admin yang dibuat
 3. Selesai! Anda sudah bisa menggunakan aplikasi
 
 ## Akses Admin Panel
 
-- URL: http://127.0.0.1:8000/admin
+- URL: http://127.0.0.1:9000/admin
 - Gunakan akun superuser untuk login
 - Di sini Anda bisa mengelola semua data
 
@@ -92,5 +92,5 @@ Lihat dokumentasi lengkap di:
 **Lupa password admin**
 → Jalankan: `python manage.py changepassword username`
 
-**Port 8000 sudah dipakai**
+**Port 9000 sudah dipakai**
 → Jalankan: `python manage.py runserver 8001`

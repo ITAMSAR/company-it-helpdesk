@@ -19,21 +19,21 @@ class Command(BaseCommand):
             local_ip = "192.168.1.1"
         
         self.stdout.write(f'🌐 IP Komputer: {local_ip}')
-        self.stdout.write(f'🚀 Server harus berjalan di: {local_ip}:8000')
+        self.stdout.write(f'🚀 Server harus berjalan di: {local_ip}:9000')
         
         # Test if port is open
         try:
             test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             test_socket.settimeout(1)
-            result = test_socket.connect_ex((local_ip, 8000))
+            result = test_socket.connect_ex((local_ip, 9000))
             test_socket.close()
             
             if result == 0:
-                self.stdout.write(self.style.SUCCESS('✅ Port 8000 terbuka dan siap diakses!'))
+                self.stdout.write(self.style.SUCCESS('✅ Port 9000 terbuka dan siap diakses!'))
             else:
-                self.stdout.write(self.style.WARNING('⚠️  Port 8000 tidak terbuka atau server belum jalan'))
+                self.stdout.write(self.style.WARNING('⚠️  Port 9000 tidak terbuka atau server belum jalan'))
         except:
-            self.stdout.write(self.style.WARNING('⚠️  Tidak bisa test port 8000'))
+            self.stdout.write(self.style.WARNING('⚠️  Tidak bisa test port 9000'))
         
         self.stdout.write('\n' + '='*60)
         self.stdout.write('📋 INSTRUKSI LENGKAP UNTUK QR CODE:')
@@ -45,8 +45,8 @@ class Command(BaseCommand):
         
         self.stdout.write('\n2️⃣ JALANKAN SERVER DENGAN NETWORK MODE:')
         self.stdout.write('   - Double click file: run_network.bat')
-        self.stdout.write('   - ATAU jalankan command: python manage.py runserver 0.0.0.0:8000')
-        self.stdout.write(f'   - Server akan berjalan di: {local_ip}:8000')
+        self.stdout.write('   - ATAU jalankan command: python manage.py runserver 0.0.0.0:9000')
+        self.stdout.write(f'   - Server akan berjalan di: {local_ip}:9000')
         
         self.stdout.write('\n3️⃣ CEK FIREWALL WINDOWS:')
         self.stdout.write('   - Buka Windows Defender Firewall')
@@ -54,7 +54,7 @@ class Command(BaseCommand):
         self.stdout.write('   - Atau disable firewall sementara untuk test')
         
         self.stdout.write('\n4️⃣ TEST KONEKSI DARI HP:')
-        self.stdout.write(f'   - Buka browser HP, ketik: http://{local_ip}:8000/inventory/test-mobile/')
+        self.stdout.write(f'   - Buka browser HP, ketik: http://{local_ip}:9000/inventory/test-mobile/')
         self.stdout.write('   - Jika berhasil, akan muncul halaman "SERVER BERHASIL DIAKSES"')
         self.stdout.write('   - Jika gagal, cek jaringan WiFi dan firewall')
         
@@ -79,7 +79,7 @@ class Command(BaseCommand):
         self.stdout.write('   2. Pastikan URL di QR code menggunakan IP yang benar')
         self.stdout.write('   3. Test manual dengan ketik URL di browser HP')
         
-        self.stdout.write(f'\n🎯 URL TEST MANUAL: http://{local_ip}:8000/inventory/test-mobile/')
+        self.stdout.write(f'\n🎯 URL TEST MANUAL: http://{local_ip}:9000/inventory/test-mobile/')
         self.stdout.write('   Buka URL ini di HP untuk test koneksi!')
         
         self.stdout.write('\n' + '='*60)

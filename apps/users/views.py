@@ -8,9 +8,11 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.db.models import Q
 import json
 from .models import EmployeeEmail
-from .forms import EmployeeEmailForm
+from .forms import AccountCreateForm, AccountUpdateForm, EmployeeEmailForm
 from apps.inventory.models import Equipment
 from apps.tickets.models import Ticket
 
@@ -34,13 +36,14 @@ class DashboardView(LoginRequiredMixin, ListView):
         from django.utils import timezone
         from django.db.models import F, Sum
         from apps.inventory.models import EquipmentCategory
-        from apps.atk.models import ATKItem
+        from apps.atk.models import ATKItem, ATKRequest
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now()
         if self.request.user.is_staff:
             # Total counts
             context['total_users'] = EmployeeEmail.objects.count()
             context['pending_tickets'] = Ticket.objects.filter(status='new').count()
+            context['pending_atk_requests'] = ATKRequest.objects.filter(status='pending').count()
             
             # Email status breakdown
             context['email_active'] = EmployeeEmail.objects.filter(is_active=True).count()
@@ -114,8 +117,84 @@ class DashboardView(LoginRequiredMixin, ListView):
                 for row in atk_category_rows
             ]
         else:
-            context['my_tickets'] = Ticket.objects.filter(reporter=self.request.user).count()
+            my_tickets = Ticket.objects.filter(reporter=self.request.user)
+            my_atk_requests = ATKRequest.objects.filter(
+                requester=self.request.user
+            ).select_related('item').prefetch_related('lines__item')
+            context['my_tickets'] = my_tickets.count()
+            context['my_open_tickets'] = my_tickets.filter(
+                status__in=['new', 'in_progress']
+            ).count()
+            context['my_atk_requests'] = my_atk_requests.count()
+            context['my_atk_total_quantity'] = sum(atk_request.total_quantity for atk_request in my_atk_requests)
+            context['my_pending_atk_requests'] = my_atk_requests.filter(
+                status='pending'
+            ).count()
+            context['my_approved_atk_requests'] = my_atk_requests.filter(
+                status='approved'
+            ).count()
+            context['my_recent_atk_requests'] = my_atk_requests[:5]
+            context['my_recent_tickets'] = my_tickets[:5]
         return context
+
+
+class AccountListView(AdminRequiredMixin, ListView):
+    model = User
+    template_name = 'users/account_list.html'
+    context_object_name = 'accounts'
+    paginate_by = 15
+
+    def get_queryset(self):
+        queryset = User.objects.order_by('username')
+
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(username__icontains=search)
+                | Q(first_name__icontains=search)
+                | Q(last_name__icontains=search)
+                | Q(email__icontains=search)
+            )
+
+        role = self.request.GET.get('role')
+        if role == 'admin':
+            queryset = queryset.filter(is_staff=True)
+        elif role == 'user':
+            queryset = queryset.filter(is_staff=False)
+
+        status = self.request.GET.get('status')
+        if status == 'active':
+            queryset = queryset.filter(is_active=True)
+        elif status == 'inactive':
+            queryset = queryset.filter(is_active=False)
+
+        return queryset
+
+
+class AccountCreateView(AdminRequiredMixin, CreateView):
+    model = User
+    form_class = AccountCreateForm
+    template_name = 'users/account_form.html'
+    success_url = reverse_lazy('users:account_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Akun user berhasil dibuat.')
+        return super().form_valid(form)
+
+
+class AccountUpdateView(AdminRequiredMixin, UpdateView):
+    model = User
+    form_class = AccountUpdateForm
+    template_name = 'users/account_form.html'
+    success_url = reverse_lazy('users:account_list')
+
+    def form_valid(self, form):
+        if self.object == self.request.user:
+            if not form.cleaned_data.get('is_staff') or not form.cleaned_data.get('is_active'):
+                messages.error(self.request, 'Anda tidak bisa menonaktifkan atau mencabut role admin akun sendiri.')
+                return self.form_invalid(form)
+        messages.success(self.request, 'Akun user berhasil diupdate.')
+        return super().form_valid(form)
 
 # Email Management Views
 class EmployeeEmailListView(AdminRequiredMixin, ListView):

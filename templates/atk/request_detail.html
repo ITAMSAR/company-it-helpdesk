@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Pengajuan ATK - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">ATK</span>
+            <h2 class="dashboard-title">Detail Pengajuan</h2>
+            <p class="dashboard-subtitle">{{ atk_request.display_item_name }} diajukan oleh {{ atk_request.requester.username }}.</p>
+        </div>
+        <a href="{% url 'atk:request_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Kembali</span>
+        </a>
+    </div>
+
+    <div class="dashboard-insights-grid">
+        <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+                <div>
+                    <span class="dashboard-eyebrow">Rincian</span>
+                    <h3>{{ atk_request.display_item_name }}</h3>
+                </div>
+                {% if atk_request.status == 'pending' %}
+                <span class="badge bg-warning text-dark">{{ atk_request.get_status_display }}</span>
+                {% elif atk_request.status == 'approved' %}
+                <span class="badge bg-success">{{ atk_request.get_status_display }}</span>
+                {% else %}
+                <span class="badge bg-danger">{{ atk_request.get_status_display }}</span>
+                {% endif %}
+            </div>
+
+            <div class="p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Pemohon:</strong> {{ atk_request.requester.username }}</p>
+                        <p><strong>Total Qty:</strong> {{ atk_request.total_quantity }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Tanggal Pengajuan:</strong> {{ atk_request.created_at|date:"d M Y H:i" }}</p>
+                        {% if atk_request.reviewed_at %}
+                        <p><strong>Tanggal Review:</strong> {{ atk_request.reviewed_at|date:"d M Y H:i" }}</p>
+                        <p><strong>Direview Oleh:</strong> {{ atk_request.reviewed_by.username|default:"-" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Barang yang Diajukan:</strong>
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Stok Saat Ini</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in atk_request.lines.all %}
+                                <tr>
+                                    <td>{{ line.display_item_name }}</td>
+                                    <td>{{ line.quantity }}</td>
+                                    <td>
+                                        {% if line.item %}
+                                        {{ line.item.current_stock }} {{ line.item.get_unit_display }}
+                                        {% else %}
+                                        Item lainnya
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td>{{ atk_request.display_item_name }}</td>
+                                    <td>{{ atk_request.quantity }}</td>
+                                    <td>
+                                        {% if atk_request.item %}
+                                        {{ atk_request.item.current_stock }} {{ atk_request.item.get_unit_display }}
+                                        {% else %}
+                                        Item lainnya
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Keperluan:</strong>
+                    <p class="mt-2 mb-0">{{ atk_request.purpose }}</p>
+                </div>
+
+                {% if atk_request.admin_notes %}
+                <div class="alert alert-info mb-0">
+                    <strong><i class="bi bi-sticky"></i> Catatan Admin:</strong>
+                    <p class="mb-0 mt-2">{{ atk_request.admin_notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if user.is_staff and atk_request.status == 'pending' %}
+        <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+                <div>
+                    <span class="dashboard-eyebrow">Admin</span>
+                    <h3>Proses Pengajuan</h3>
+                </div>
+            </div>
+            <div class="p-4">
+                <form method="post" action="{% url 'atk:request_review' atk_request.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Catatan Admin</label>
+                        <textarea name="admin_notes" class="form-control" rows="4" placeholder="Tambahkan catatan untuk user..."></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="action" value="approved" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i>
+                            Setujui
+                        </button>
+                        <button type="submit" name="action" value="rejected" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i>
+                            Tolak
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

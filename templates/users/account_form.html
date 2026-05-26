@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Tambah{% endif %} Akun User - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">Admin</span>
+            <h2 class="dashboard-title">{% if object %}Edit Akun{% else %}Tambah Akun User{% endif %}</h2>
+            <p class="dashboard-subtitle">
+                {% if object %}
+                Update data akun, role, status, atau reset password.
+                {% else %}
+                Buat akun login baru untuk akses dashboard IT Hub.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Ada field yang perlu diperbaiki. Cek kembali input akun.
+    </div>
+    {% endif %}
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Form</span>
+                <h3>Data Akun</h3>
+            </div>
+        </div>
+        <div class="p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+                        {% if form.username.errors %}<div class="invalid-feedback">{{ form.username.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}">
+                        {% if form.email.errors %}<div class="invalid-feedback">{{ form.email.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nama Depan</label>
+                        <input type="text" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nama Belakang</label>
+                        <input type="text" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}">
+                    </div>
+                </div>
+
+                {% if object %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Kosongkan password baru jika tidak ingin mengganti password akun ini.
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{% if object %}Password Baru{% else %}Password{% endif %}</label>
+                        <div class="input-group">
+                            <input type="password" id="password1Field" name="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" {% if not object %}required{% endif %}>
+                            <button class="btn btn-outline-secondary" type="button" onclick="toggleAccountPassword('password1Field', 'password1Icon')" aria-label="Lihat password">
+                                <i id="password1Icon" class="bi bi-eye"></i>
+                            </button>
+                            {% if form.password1.errors %}<div class="invalid-feedback">{{ form.password1.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Konfirmasi Password</label>
+                        <div class="input-group">
+                            <input type="password" id="password2Field" name="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" {% if not object %}required{% endif %}>
+                            <button class="btn btn-outline-secondary" type="button" onclick="toggleAccountPassword('password2Field', 'password2Icon')" aria-label="Lihat konfirmasi password">
+                                <i id="password2Icon" class="bi bi-eye"></i>
+                            </button>
+                            {% if form.password2.errors %}<div class="invalid-feedback">{{ form.password2.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="is_staff" class="form-select">
+                            <option value="" {% if not form.is_staff.value %}selected{% endif %}>User</option>
+                            <option value="on" {% if form.is_staff.value %}selected{% endif %}>Administrator</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="is_active" class="form-select">
+                            <option value="on" {% if form.is_active.value or form.is_active.value == None %}selected{% endif %}>Aktif</option>
+                            <option value="" {% if form.is_active.value == False %}selected{% endif %}>Nonaktif</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    Simpan
+                </button>
+                <a href="{% url 'users:account_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Batal
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+function toggleAccountPassword(fieldId, iconId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
+{% endblock %}

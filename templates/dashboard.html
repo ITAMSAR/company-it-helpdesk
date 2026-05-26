@@ -73,6 +73,20 @@
                 <span><i class="bi bi-arrow-repeat text-warning"></i>{{ ticket_in_progress }} diproses</span>
             </div>
         </a>
+
+        <a href="{% url 'atk:request_list' %}?status=pending" class="dashboard-stat-card dashboard-stat-card--cyan">
+            <div class="dashboard-stat-top">
+                <div>
+                    <span class="dashboard-stat-label">Pengajuan ATK</span>
+                    <strong class="dashboard-stat-value">{{ pending_atk_requests }}</strong>
+                </div>
+                <span class="dashboard-stat-icon"><i class="bi bi-pencil-square"></i></span>
+            </div>
+            <div class="dashboard-mini-metrics">
+                <span><i class="bi bi-hourglass-split text-warning"></i>menunggu approval</span>
+                <span><i class="bi bi-box-arrow-up-right text-primary"></i>buka daftar pengajuan</span>
+            </div>
+        </a>
     </div>
 
     <div class="dashboard-insights-grid">
@@ -160,15 +174,120 @@
         </div>
     </div>
     {% else %}
-    <div class="dashboard-user-welcome">
-        <i class="bi bi-info-circle-fill"></i>
-        <div>
-            <strong>Selamat datang, {{ user.username }}!</strong>
-            <p>Anda memiliki {{ my_tickets }} tiket yang sedang berjalan.</p>
+    <div class="dashboard-stats-grid">
+        <a href="{% url 'atk:request_create' %}" class="dashboard-stat-card dashboard-stat-card--green">
+            <div class="dashboard-stat-top">
+                <div>
+                    <span class="dashboard-stat-label">Total ATK Diminta</span>
+                    <strong class="dashboard-stat-value">{{ my_atk_total_quantity }}</strong>
+                </div>
+                <span class="dashboard-stat-icon"><i class="bi bi-pencil-square"></i></span>
+            </div>
+            <div class="dashboard-mini-metrics">
+                <span><i class="bi bi-list-check text-primary"></i>{{ my_atk_requests }} pengajuan</span>
+                <span><i class="bi bi-hourglass-split text-warning"></i>menunggu persetujuan</span>
+                <span><i class="bi bi-check-circle-fill text-success"></i>{{ my_approved_atk_requests }} disetujui</span>
+            </div>
+        </a>
+
+        <a href="{% url 'tickets:ticket_create' %}" class="dashboard-stat-card dashboard-stat-card--blue">
+            <div class="dashboard-stat-top">
+                <div>
+                    <span class="dashboard-stat-label">Tiket Kendala</span>
+                    <strong class="dashboard-stat-value">Buat</strong>
+                </div>
+                <span class="dashboard-stat-icon"><i class="bi bi-ticket"></i></span>
+            </div>
+            <div class="dashboard-mini-metrics">
+                <span><i class="bi bi-plus-circle text-primary"></i>ajukan kendala baru</span>
+                <span><i class="bi bi-arrow-repeat text-warning"></i>pantau proses admin</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="dashboard-insights-grid">
+        <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+                <div>
+                    <span class="dashboard-eyebrow">Riwayat ATK</span>
+                    <h3>Pengajuan Terakhir</h3>
+                </div>
+                <a href="{% url 'atk:request_list' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-right"></i>
+                    <span>Lihat Semua</span>
+                </a>
+            </div>
+            <div class="user-activity-list">
+                {% for atk_request in my_recent_atk_requests %}
+                <a href="{% url 'atk:request_detail' atk_request.pk %}" class="user-activity-item">
+                    <span class="user-activity-icon"><i class="bi bi-pencil-square"></i></span>
+                    <span class="user-activity-main">
+                        <strong>{{ atk_request.display_item_name }}</strong>
+                        <small>{{ atk_request.created_at|date:"d M Y H:i" }}</small>
+                    </span>
+                    <span class="user-activity-meta">
+                        <strong>{{ atk_request.total_quantity }}</strong>
+                        {% if atk_request.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">{{ atk_request.get_status_display }}</span>
+                        {% elif atk_request.status == 'approved' %}
+                        <span class="badge bg-success">{{ atk_request.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{{ atk_request.get_status_display }}</span>
+                        {% endif %}
+                    </span>
+                </a>
+                {% empty %}
+                <div class="dashboard-empty-state">
+                    <i class="bi bi-inboxes"></i>
+                    <p>Belum ada pengajuan ATK.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="dashboard-panel-header">
+                <div>
+                    <span class="dashboard-eyebrow">Riwayat Tiket</span>
+                    <h3>Kendala Terakhir</h3>
+                </div>
+                <a href="{% url 'tickets:ticket_list' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-right"></i>
+                    <span>Lihat Semua</span>
+                </a>
+            </div>
+            <div class="user-activity-list">
+                {% for ticket in my_recent_tickets %}
+                <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="user-activity-item">
+                    <span class="user-activity-icon"><i class="bi bi-ticket"></i></span>
+                    <span class="user-activity-main">
+                        <strong>{{ ticket.title }}</strong>
+                        <small>{{ ticket.created_at|date:"d M Y H:i" }}</small>
+                    </span>
+                    <span class="user-activity-meta">
+                        {% if ticket.status == 'new' %}
+                        <span class="badge bg-primary">{{ ticket.get_status_display }}</span>
+                        {% elif ticket.status == 'in_progress' %}
+                        <span class="badge bg-warning text-dark">{{ ticket.get_status_display }}</span>
+                        {% elif ticket.status == 'completed' %}
+                        <span class="badge bg-success">{{ ticket.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{{ ticket.get_status_display }}</span>
+                        {% endif %}
+                    </span>
+                </a>
+                {% empty %}
+                <div class="dashboard-empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>Belum ada tiket.</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
+    {% if user.is_staff %}
     <div class="dashboard-panel dashboard-recent-panel">
         <div class="dashboard-panel-header">
             <div>
@@ -279,5 +398,6 @@
             </table>
         </div>
     </div>
+    {% endif %}
 </section>
 {% endblock %}

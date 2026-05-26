@@ -24,7 +24,7 @@
 ### Q: Bagaimana cara menambah user baru?
 **A:** 
 1. Login sebagai admin
-2. Buka http://127.0.0.1:8000/admin
+2. Buka http://127.0.0.1:9000/admin
 3. Klik "Users" → "Add User"
 4. Isi username dan password
 5. Save
@@ -100,7 +100,7 @@
 ### Q: Lupa password admin
 **A:** Jalankan: `python manage.py changepassword username`
 
-### Q: Port 8000 sudah digunakan
+### Q: Port 9000 sudah digunakan
 **A:** Gunakan port lain: `python manage.py runserver 8001`
 
 ## Development

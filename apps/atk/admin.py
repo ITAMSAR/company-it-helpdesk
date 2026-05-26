@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ATKCategory, ATKItem
+from .models import ATKCategory, ATKItem, ATKRequest, ATKRequestLine
 
 @admin.register(ATKCategory)
 class ATKCategoryAdmin(admin.ModelAdmin):
@@ -16,3 +16,17 @@ class ATKItemAdmin(admin.ModelAdmin):
     def stock_status(self, obj):
         return obj.stock_status
     stock_status.short_description = 'Status Stok'
+
+
+@admin.register(ATKRequest)
+class ATKRequestAdmin(admin.ModelAdmin):
+    list_display = ['display_item_name', 'requester', 'total_quantity', 'status', 'created_at', 'reviewed_by']
+    list_filter = ['status', 'created_at', 'reviewed_at']
+    search_fields = ['custom_item_name', 'item__name', 'requester__username', 'purpose']
+    readonly_fields = ['created_at', 'updated_at', 'reviewed_at']
+
+
+@admin.register(ATKRequestLine)
+class ATKRequestLineAdmin(admin.ModelAdmin):
+    list_display = ['request', 'display_item_name', 'quantity', 'created_at']
+    search_fields = ['custom_item_name', 'item__name', 'request__requester__username']

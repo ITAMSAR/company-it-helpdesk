@@ -4,6 +4,9 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
+    path('accounts/', views.AccountListView.as_view(), name='account_list'),
+    path('accounts/add/', views.AccountCreateView.as_view(), name='account_add'),
+    path('accounts/<int:pk>/edit/', views.AccountUpdateView.as_view(), name='account_edit'),
     path('emails/', views.EmployeeEmailListView.as_view(), name='email_list'),
     path('emails/add/', views.EmployeeEmailCreateView.as_view(), name='email_add'),
     path('emails/<int:pk>/edit/', views.EmployeeEmailUpdateView.as_view(), name='email_edit'),

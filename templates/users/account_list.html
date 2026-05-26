@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Akun User - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">Admin</span>
+            <h2 class="dashboard-title">Akun User</h2>
+            <p class="dashboard-subtitle">Buat dan kelola akun login untuk user maupun administrator.</p>
+        </div>
+        <a href="{% url 'users:account_add' %}" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i>
+            <span>Tambah Akun</span>
+        </a>
+    </div>
+
+    <form method="get" class="row g-3">
+        <div class="col-md-5">
+            <input type="text" name="search" class="form-control" placeholder="Cari username, nama, atau email..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="role" class="form-select">
+                <option value="">Semua Role</option>
+                <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Administrator</option>
+                <option value="user" {% if request.GET.role == 'user' %}selected{% endif %}>User</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">Semua Status</option>
+                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Aktif</option>
+                <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Nonaktif</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">
+                <i class="bi bi-funnel"></i>
+                Filter
+            </button>
+        </div>
+    </form>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Daftar</span>
+                <h3>Akun Login</h3>
+            </div>
+        </div>
+
+        <div class="table-responsive dashboard-ticket-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Terakhir Login</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td class="align-middle"><strong>{{ account.username }}</strong></td>
+                        <td class="align-middle">{{ account.get_full_name|default:"-" }}</td>
+                        <td class="align-middle">{{ account.email|default:"-" }}</td>
+                        <td class="align-middle">
+                            {% if account.is_staff %}
+                            <span class="badge bg-primary">Administrator</span>
+                            {% else %}
+                            <span class="badge bg-secondary">User</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">
+                            {% if account.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                            {% else %}
+                            <span class="badge bg-danger">Nonaktif</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle text-muted">
+                            {% if account.last_login %}{{ account.last_login|date:"d M Y H:i" }}{% else %}-{% endif %}
+                        </td>
+                        <td class="align-middle">
+                            <a href="{% url 'users:account_edit' account.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                                <span>Edit</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                            Belum ada akun.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if is_paginated %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.role %}&role={{ request.GET.role }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</section>
+{% endblock %}

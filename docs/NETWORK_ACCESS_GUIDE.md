@@ -12,7 +12,7 @@
 ### Langkah 2: Jalankan Server dalam Mode Network
 
 1. Double-click file `scripts\IT_DASHBOARD.bat`
-2. Server akan berjalan di `0.0.0.0:8000`
+2. Server akan berjalan di `0.0.0.0:9000`
 3. Jangan tutup window command prompt
 
 ### Langkah 3: Akses dari Laptop
@@ -20,7 +20,7 @@
 Dari laptop/device lain di jaringan yang sama, buka browser dan ketik:
 
 ```
-http://192.168.1.4:8000
+http://192.168.1.4:9000
 ```
 
 **PENTING:** Ganti `192.168.1.4` dengan IP address PC kamu jika berbeda!
@@ -66,12 +66,12 @@ Jika berhasil ping, berarti koneksi network OK.
 ## Akses URL
 
 ### Dari PC (Host):
-- http://127.0.0.1:8000
-- http://localhost:8000
-- http://192.168.1.4:8000
+- http://127.0.0.1:9000
+- http://localhost:9000
+- http://192.168.1.4:9000
 
 ### Dari Laptop/Device Lain:
-- http://192.168.1.4:8000
+- http://192.168.1.4:9000
 
 ## Keamanan
 
@@ -92,7 +92,7 @@ python manage.py collectstatic --noinput
 ## Tips
 
 1. **IP Statis:** Untuk menghindari IP berubah-ubah, set static IP di router untuk PC kamu
-2. **Bookmark:** Save URL `http://192.168.1.4:8000` di bookmark laptop
+2. **Bookmark:** Save URL `http://192.168.1.4:9000` di bookmark laptop
 3. **Auto-start:** Bisa buat shortcut `scripts\IT_DASHBOARD.bat` di Startup folder untuk auto-run saat PC nyala
 
 ## File Penting

@@ -47,11 +47,13 @@
                 <td>{{ category.created_at|date:"d M Y" }}</td>
                 <td>
                     <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-sm btn-warning" 
-                                onclick="window.location.href='{% url 'inventory:category_edit' category.pk %}'"
-                                title="Edit">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
+                        <button type="button"
+        class="btn btn-sm btn-warning"
+        data-url="{% url 'inventory:category_edit' category.pk %}"
+        onclick="window.location.href=this.dataset.url"
+        title="Edit">
+    <i class="bi bi-pencil-fill"></i>
+</button>
                         <button type="button" class="btn btn-sm btn-danger btn-delete-item" 
                                 data-item-name="{{ category.name }}"
                                 data-delete-url="{% url 'inventory:category_delete' category.pk %}"

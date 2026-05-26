@@ -45,6 +45,12 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
     template_name = 'tickets/ticket_detail.html'
     context_object_name = 'ticket'
 
+    def get_queryset(self):
+        queryset = Ticket.objects.select_related('reporter', 'equipment')
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(reporter=self.request.user)
+        return queryset
+
 @login_required
 def update_ticket_status(request, pk):
     """View untuk update status dan notes tiket"""

@@ -4,10 +4,10 @@
 
 ### 1. Login sebagai Admin
 - Gunakan akun superuser yang dibuat saat setup
-- Akses: http://127.0.0.1:8000
+- Akses: http://127.0.0.1:9000
 
 ### 2. Mengelola Email Karyawan
-- Buka Admin Panel: http://127.0.0.1:8000/admin
+- Buka Admin Panel: http://127.0.0.1:9000/admin
 - Pilih "Email Karyawan"
 - Klik "Add Email Karyawan" untuk menambah data baru
 - Isi semua field yang diperlukan
@@ -42,7 +42,7 @@
 
 ### 1. Login
 - Gunakan username dan password yang diberikan admin
-- Akses: http://127.0.0.1:8000
+- Akses: http://127.0.0.1:9000
 
 ### 2. Membuat Tiket
 - Dari dashboard, klik menu "Tiket"

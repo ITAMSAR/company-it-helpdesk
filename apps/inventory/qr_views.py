@@ -113,7 +113,7 @@ def test_mobile_access(request):
             <h1 class="success">✅ SERVER BERHASIL DIAKSES!</h1>
             <div class="info">
                 <div class="ip-info">
-                    <strong>🌐 IP Server: {local_ip}:8000</strong>
+                    <strong>🌐 IP Server: {local_ip}:9000</strong>
                 </div>
                 <p><strong>📱 Waktu Akses:</strong> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}</p>
                 <p><strong>🔍 User Agent:</strong><br><small>{request.META.get('HTTP_USER_AGENT', 'Unknown')}</small></p>
@@ -172,7 +172,7 @@ def generate_qr_code(request, equipment_id):
         local_ip = get_local_ip()
         
         # Create URL dengan IP lokal dinamis
-        item_url = f"http://{local_ip}:8000/item/{equipment.inventory_code}/"
+        item_url = f"http://{local_ip}:9000/item/{equipment.inventory_code}/"
         
         # Generate QR code
         qr = qrcode.QRCode(

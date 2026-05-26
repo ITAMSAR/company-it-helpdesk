@@ -30,7 +30,7 @@ scripts\IT_DASHBOARD.bat
 1
 
 # 4. Buka browser:
-http://127.0.0.1:8000
+http://127.0.0.1:9000
 ```
 
 ### Manual:
@@ -50,7 +50,7 @@ python manage.py createsuperuser
 python manage.py runserver
 
 # 5. Buka browser
-http://127.0.0.1:8000
+http://127.0.0.1:9000
 ```
 
 ## 🌐 Akses dari Jaringan Lokal
@@ -67,7 +67,7 @@ scripts\IT_DASHBOARD.bat
 # lalu pilih menu 2
 
 # 3. Akses dari device lain:
-http://[IP-ADDRESS-PC]:8000
+http://[IP-ADDRESS-PC]:9000
 ```
 
 Lihat **docs/NETWORK_ACCESS_GUIDE.md** untuk panduan lengkap.
@@ -112,7 +112,7 @@ Python 3.14 terlalu baru. Solusi:
 ### Password tidak terlihat saat buat admin
 Ini NORMAL untuk keamanan. Ketik saja (meskipun tidak terlihat) lalu Enter.
 
-### Port 8000 sudah dipakai
+### Port 9000 sudah dipakai
 ```bash
 python manage.py runserver 8001
 ```
