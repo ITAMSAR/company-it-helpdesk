@@ -50,10 +50,45 @@
     </div>
 </form>
 
+{% if user.is_staff %}
+<form method="post" action="/inventory/bulk-action/" id="bulkInventoryForm">
+    {% csrf_token %}
+    <div class="bulk-inventory-toolbar mb-3">
+        <div>
+            <strong><span id="selectedCount">0</span> inventaris dipilih</strong>
+            <small class="text-muted d-block">Pilih item di tabel, lalu jalankan aksi massal.</small>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline-secondary" id="clearBulkSelection" disabled>
+                <i class="bi bi-x-circle"></i>
+                Reset Pilihan
+            </button>
+            <button type="submit" name="bulk_action" value="export_excel" class="btn btn-success" disabled data-bulk-button>
+                <i class="bi bi-file-earmark-excel"></i>
+                Export Excel
+            </button>
+            <button type="submit" name="bulk_action" value="export_qr_word" class="btn btn-primary" disabled data-bulk-button>
+                <i class="bi bi-file-earmark-word"></i>
+                Export QR Word
+            </button>
+            <button type="submit" name="bulk_action" value="delete" class="btn btn-danger" disabled data-bulk-button data-confirm-delete>
+                <i class="bi bi-trash"></i>
+                Delete
+            </button>
+        </div>
+    </div>
+    <div id="bulkSelectedInputs"></div>
+{% endif %}
+
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
+                {% if user.is_staff %}
+                <th class="text-center" style="width: 48px;">
+                    <input type="checkbox" class="form-check-input" id="selectAllEquipment" title="Pilih semua di halaman ini">
+                </th>
+                {% endif %}
                 <th class="col-name">Nama</th>
                 <th class="col-code">Kode</th>
                 <th class="col-category d-none d-md-table-cell">Kategori</th>
@@ -67,6 +102,11 @@
         <tbody>
             {% for equipment in equipment_list %}
             <tr>
+                {% if user.is_staff %}
+                <td class="text-center align-middle">
+                    <input type="checkbox" class="form-check-input equipment-checkbox" name="selected_equipment" value="{{ equipment.pk }}" aria-label="Pilih {{ equipment.name }}">
+                </td>
+                {% endif %}
                 <td class="col-name">
                     <div class="fw-medium">{{ equipment.name }}</div>
                     <small class="text-muted d-md-none">
@@ -126,7 +166,7 @@
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="8" class="text-center py-4">
+            <tr><td colspan="{% if user.is_staff %}9{% else %}8{% endif %}" class="text-center py-4">
                 <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
                 <span class="text-muted">Belum ada data</span>
             </td></tr>
@@ -134,6 +174,10 @@
         </tbody>
     </table>
 </div>
+
+{% if user.is_staff %}
+</form>
+{% endif %}
 
 <div style="height: 60px;"></div>
 
@@ -224,6 +268,153 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    const bulkStorageKey = 'itHubInventoryBulkSelection';
+    const bulkForm = document.getElementById('bulkInventoryForm');
+    const selectAll = document.getElementById('selectAllEquipment');
+    const checkboxes = document.querySelectorAll('.equipment-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkButtons = document.querySelectorAll('[data-bulk-button]');
+    const clearBulkSelection = document.getElementById('clearBulkSelection');
+    const bulkSelectedInputs = document.getElementById('bulkSelectedInputs');
+
+    function getStoredSelection() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(bulkStorageKey) || '[]'));
+        } catch (error) {
+            return new Set();
+        }
+    }
+
+    function saveStoredSelection(selection) {
+        localStorage.setItem(bulkStorageKey, JSON.stringify(Array.from(selection)));
+    }
+
+    function syncHiddenInputs(selection) {
+        if (!bulkSelectedInputs) {
+            return;
+        }
+        bulkSelectedInputs.innerHTML = '';
+        selection.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'selected_equipment';
+            input.value = id;
+            bulkSelectedInputs.appendChild(input);
+        });
+    }
+
+    function restoreCurrentPageSelection() {
+        const selection = getStoredSelection();
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selection.has(checkbox.value);
+        });
+        updateBulkState();
+    }
+
+    function updateBulkState() {
+        const selection = getStoredSelection();
+        const checkedCount = selection.size;
+        if (selectedCount) {
+            selectedCount.textContent = checkedCount;
+        }
+        bulkButtons.forEach(button => {
+            button.disabled = checkedCount === 0;
+        });
+        if (clearBulkSelection) {
+            clearBulkSelection.disabled = checkedCount === 0;
+        }
+        if (selectAll) {
+            const pageCheckedCount = Array.from(checkboxes).filter(checkbox => selection.has(checkbox.value)).length;
+            selectAll.checked = pageCheckedCount > 0 && pageCheckedCount === checkboxes.length;
+            selectAll.indeterminate = pageCheckedCount > 0 && pageCheckedCount < checkboxes.length;
+        }
+        syncHiddenInputs(selection);
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            const selection = getStoredSelection();
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+                if (this.checked) {
+                    selection.add(checkbox.value);
+                } else {
+                    selection.delete(checkbox.value);
+                }
+            });
+            saveStoredSelection(selection);
+            updateBulkState();
+        });
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const selection = getStoredSelection();
+            if (this.checked) {
+                selection.add(this.value);
+            } else {
+                selection.delete(this.value);
+            }
+            saveStoredSelection(selection);
+            updateBulkState();
+        });
+    });
+
+    if (clearBulkSelection) {
+        clearBulkSelection.addEventListener('click', function() {
+            localStorage.removeItem(bulkStorageKey);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateBulkState();
+        });
+    }
+
+    if (bulkForm) {
+        bulkForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const selection = getStoredSelection();
+            const checkedCount = selection.size;
+            if (!checkedCount) {
+                event.preventDefault();
+                alert('Pilih minimal satu inventaris dulu.');
+                return;
+            }
+            syncHiddenInputs(selection);
+            if (submitter && submitter.hasAttribute('data-confirm-delete')) {
+                const confirmed = confirm(`Hapus ${checkedCount} inventaris yang dipilih? Tindakan ini tidak bisa dibatalkan.`);
+                if (!confirmed) {
+                    event.preventDefault();
+                } else {
+                    localStorage.removeItem(bulkStorageKey);
+                }
+            }
+        });
+    }
+
+    restoreCurrentPageSelection();
 });
 </script>
+
+<style>
+    .bulk-inventory-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #dbe5ef;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    @media (max-width: 768px) {
+        .bulk-inventory-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
 {% endblock %}

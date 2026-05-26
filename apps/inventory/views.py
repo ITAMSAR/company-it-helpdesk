@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -157,6 +157,7 @@ class CategoryDeleteView(AdminRequiredMixin, DeleteView):
 
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 from datetime import datetime
@@ -164,8 +165,9 @@ import json
 import qrcode
 from io import BytesIO
 from docx import Document
-from docx.shared import Inches
+from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.section import WD_ORIENT
 
 @login_required
 def get_subcategories(request):
@@ -257,6 +259,150 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 def word_document(request, equipment_id):
     return HttpResponse("Word function works...")
 
+
+def _selected_equipment_queryset(request):
+    selected_ids = request.POST.getlist('selected_equipment')
+    return Equipment.objects.select_related('category').filter(id__in=selected_ids).order_by('name')
+
+
+def _build_equipment_excel_response(equipment_list, filename_prefix='Inventaris_Terpilih'):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Inventaris Peralatan"
+
+    header_fill = PatternFill(start_color="152231", end_color="152231", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+
+    headers = ['No', 'Nama', 'Kode Inventaris', 'Kategori', 'Spesifikasi', 'Pengguna', 'Lokasi', 'Status', 'Tanggal Pembelian', 'Garansi Sampai']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+
+    for row, equipment in enumerate(equipment_list, 2):
+        ws.cell(row=row, column=1, value=row - 1)
+        ws.cell(row=row, column=2, value=equipment.name)
+        ws.cell(row=row, column=3, value=equipment.inventory_code)
+        ws.cell(row=row, column=4, value=equipment.category.full_path)
+        ws.cell(row=row, column=5, value=equipment.specifications or '-')
+        ws.cell(row=row, column=6, value=equipment.current_user or '-')
+        ws.cell(row=row, column=7, value=equipment.location or '-')
+        ws.cell(row=row, column=8, value=equipment.get_status_display())
+        ws.cell(row=row, column=9, value=equipment.purchase_date.strftime('%d/%m/%Y') if equipment.purchase_date else '-')
+        ws.cell(row=row, column=10, value=equipment.warranty_until.strftime('%d/%m/%Y') if equipment.warranty_until else '-')
+
+    widths = [5, 28, 18, 24, 42, 22, 22, 15, 18, 18]
+    for index, width in enumerate(widths, 1):
+        ws.column_dimensions[chr(64 + index)].width = width
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f'{filename_prefix}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
+def _build_equipment_qr_word_response(request, equipment_list):
+    document = Document()
+    section = document.sections[0]
+    section.orientation = WD_ORIENT.LANDSCAPE
+    section.page_width, section.page_height = section.page_height, section.page_width
+    section.top_margin = Inches(0.35)
+    section.bottom_margin = Inches(0.35)
+    section.left_margin = Inches(0.45)
+    section.right_margin = Inches(0.45)
+
+    local_ip = None
+    try:
+        from apps.inventory.qr_views import get_local_ip
+        local_ip = get_local_ip()
+    except Exception:
+        local_ip = request.get_host().split(':')[0]
+
+    table = document.add_table(rows=0, cols=3)
+    table.autofit = False
+    for column in table.columns:
+        for cell in column.cells:
+            cell.width = Inches(3.05)
+
+    for start in range(0, len(equipment_list), 3):
+        row = table.add_row()
+        row.height = Inches(2.45)
+        for column_index, equipment in enumerate(equipment_list[start:start + 3]):
+            cell = row.cells[column_index]
+            cell.width = Inches(3.05)
+
+            item_url = f"http://{local_ip}:9000/item/{equipment.inventory_code}/"
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_M,
+                box_size=10,
+                border=2,
+            )
+            qr.add_data(item_url)
+            qr.make(fit=True)
+            qr_img = qr.make_image(fill_color="black", back_color="white")
+
+            image_buffer = BytesIO()
+            qr_img.save(image_buffer, format='PNG')
+            image_buffer.seek(0)
+
+            qr_paragraph = cell.paragraphs[0]
+            qr_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            qr_paragraph.add_run().add_picture(image_buffer, width=Inches(1.75))
+
+            code_paragraph = cell.add_paragraph()
+            code_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            code_run = code_paragraph.add_run(equipment.inventory_code)
+            code_run.font.name = 'Times New Roman'
+            code_run.font.size = Pt(10)
+
+    buffer = BytesIO()
+    document.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    filename = f'QR_Inventaris_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@require_POST
+@login_required
+def bulk_equipment_action(request):
+    if not request.user.is_staff:
+        messages.error(request, 'Anda tidak memiliki akses untuk aksi massal inventaris.')
+        return redirect('inventory:equipment_list')
+
+    action = request.POST.get('bulk_action')
+    equipment_list = list(_selected_equipment_queryset(request))
+
+    if not equipment_list:
+        messages.warning(request, 'Pilih minimal satu inventaris dulu.')
+        return redirect('inventory:equipment_list')
+
+    if action == 'delete':
+        count = len(equipment_list)
+        Equipment.objects.filter(id__in=[equipment.id for equipment in equipment_list]).delete()
+        messages.success(request, f'{count} inventaris berhasil dihapus.')
+        return redirect('inventory:equipment_list')
+
+    if action == 'export_excel':
+        return _build_equipment_excel_response(equipment_list)
+
+    if action == 'export_qr_word':
+        return _build_equipment_qr_word_response(request, equipment_list)
+
+    messages.error(request, 'Aksi massal tidak valid.')
+    return redirect('inventory:equipment_list')
+
 @login_required
 def export_equipment_excel(request):
     """Export inventaris peralatan ke Excel"""
@@ -264,56 +410,5 @@ def export_equipment_excel(request):
         messages.error(request, 'Anda tidak memiliki akses untuk export data!')
         return redirect('inventory:equipment_list')
     
-    # Create workbook
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Inventaris Peralatan"
-    
-    # Header style
-    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
-    header_font = Font(bold=True, color="FFFFFF")
-    header_alignment = Alignment(horizontal="center", vertical="center")
-    
-    # Headers
-    headers = ['No', 'Nama', 'Kode Inventaris', 'Kategori', 'Spesifikasi', 'Pengguna', 'Lokasi', 'Status', 'Tanggal Pembelian', 'Garansi Sampai']
-    for col, header in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=col, value=header)
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = header_alignment
-    
-    # Data
     equipment_list = Equipment.objects.select_related('category').all().order_by('-created_at')
-    for row, equipment in enumerate(equipment_list, 2):
-        ws.cell(row=row, column=1, value=row-1)
-        ws.cell(row=row, column=2, value=equipment.name)
-        ws.cell(row=row, column=3, value=equipment.inventory_code)
-        ws.cell(row=row, column=4, value=equipment.category.name)
-        ws.cell(row=row, column=5, value=equipment.specifications or '-')
-        ws.cell(row=row, column=6, value=equipment.current_user or '-')
-        ws.cell(row=row, column=7, value=equipment.location or '-')
-        ws.cell(row=row, column=8, value=equipment.get_status_display())
-        ws.cell(row=row, column=9, value=equipment.purchase_date.strftime('%d/%m/%Y') if equipment.purchase_date else '-')
-        ws.cell(row=row, column=10, value=equipment.warranty_until.strftime('%d/%m/%Y') if equipment.warranty_until else '-')
-    
-    # Adjust column widths
-    ws.column_dimensions['A'].width = 5
-    ws.column_dimensions['B'].width = 25
-    ws.column_dimensions['C'].width = 15
-    ws.column_dimensions['D'].width = 15
-    ws.column_dimensions['E'].width = 40
-    ws.column_dimensions['F'].width = 20
-    ws.column_dimensions['G'].width = 20
-    ws.column_dimensions['H'].width = 15
-    ws.column_dimensions['I'].width = 18
-    ws.column_dimensions['J'].width = 18
-    
-    # Create response
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    filename = f'Inventaris_Peralatan_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    response['Content-Disposition'] = f'attachment; filename={filename}'
-    
-    wb.save(response)
-    return response
+    return _build_equipment_excel_response(equipment_list, filename_prefix='Inventaris_Peralatan')

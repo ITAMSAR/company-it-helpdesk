@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from apps.users.views import DashboardView
 from apps.users.logout_view import logout_view
+from apps.inventory.views import bulk_equipment_action
 from apps.inventory.qr_views import item_detail_view
 
 urlpatterns = [
@@ -13,6 +14,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', logout_view, name='logout'),
     path('users/', include('apps.users.urls')),
+    path('inventory/bulk-action/', bulk_equipment_action, name='inventory_bulk_equipment_action'),
     path('inventory/', include('apps.inventory.urls')),
     path('atk/', include('apps.atk.urls')),
     path('tickets/', include('apps.tickets.urls')),

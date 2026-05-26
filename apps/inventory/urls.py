@@ -10,6 +10,7 @@ urlpatterns = [
     path('add/', views.EquipmentCreateView.as_view(), name='equipment_add'),
     path('<int:pk>/edit/', views.EquipmentUpdateView.as_view(), name='equipment_edit'),
     path('<int:pk>/delete/', views.EquipmentDeleteView.as_view(), name='equipment_delete'),
+    path('bulk-action/', views.bulk_equipment_action, name='bulk_equipment_action'),
     path('export/', views.export_equipment_excel, name='export_equipment'),
     
     # QR Code Generation (login required)
