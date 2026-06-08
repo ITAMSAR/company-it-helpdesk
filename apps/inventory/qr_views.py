@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from .models import Equipment
 import socket
@@ -9,7 +10,7 @@ from io import BytesIO
 def item_detail_view(request, code):
     """Public view for QR code scanning - shows item details by code"""
     try:
-        equipment = Equipment.objects.get(inventory_code=code)
+        equipment = Equipment.objects.select_related('category__parent').get(inventory_code=code)
         return render(request, 'inventory/item_detail.html', {
             'equipment': equipment,
             'scanned_at': datetime.now()
@@ -163,6 +164,7 @@ def get_local_ip():
             # Method 3: Last fallback
             return "192.168.1.1"
 
+@login_required
 def generate_qr_code(request, equipment_id):
     """Generate QR code dengan IP lokal otomatis"""
     try:

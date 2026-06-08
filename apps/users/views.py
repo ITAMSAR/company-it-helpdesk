@@ -45,9 +45,12 @@ class DashboardView(LoginRequiredMixin, ListView):
             context['pending_tickets'] = Ticket.objects.filter(status='new').count()
             context['pending_atk_requests'] = ATKRequest.objects.filter(status='pending').count()
             
-            # Email status breakdown
-            context['email_active'] = EmployeeEmail.objects.filter(is_active=True).count()
-            context['email_inactive'] = EmployeeEmail.objects.filter(is_active=False).count()
+            email_counts = EmployeeEmail.objects.aggregate(
+                active=Count('id', filter=Q(is_active=True)),
+                inactive=Count('id', filter=Q(is_active=False)),
+            )
+            context['email_active'] = email_counts['active']
+            context['email_inactive'] = email_counts['inactive']
             
             # Get main categories
             elektronik_category = EquipmentCategory.objects.filter(name='Elektronik').first()
@@ -57,11 +60,18 @@ class DashboardView(LoginRequiredMixin, ListView):
             if elektronik_category:
                 elektronik_subcategories = elektronik_category.get_children()
                 elektronik_equipment = Equipment.objects.filter(category__in=elektronik_subcategories)
-                context['total_elektronik'] = elektronik_equipment.count()
-                context['elektronik_available'] = elektronik_equipment.filter(status='available').count()
-                context['elektronik_borrowed'] = elektronik_equipment.filter(status='borrowed').count()
-                context['elektronik_broken'] = elektronik_equipment.filter(status='broken').count()
-                context['elektronik_service'] = elektronik_equipment.filter(status='service').count()
+                elektronik_counts = elektronik_equipment.aggregate(
+                    total=Count('id'),
+                    available=Count('id', filter=Q(status='available')),
+                    borrowed=Count('id', filter=Q(status='borrowed')),
+                    broken=Count('id', filter=Q(status='broken')),
+                    service=Count('id', filter=Q(status='service')),
+                )
+                context['total_elektronik'] = elektronik_counts['total']
+                context['elektronik_available'] = elektronik_counts['available']
+                context['elektronik_borrowed'] = elektronik_counts['borrowed']
+                context['elektronik_broken'] = elektronik_counts['broken']
+                context['elektronik_service'] = elektronik_counts['service']
             else:
                 context['total_elektronik'] = 0
                 context['elektronik_available'] = 0
@@ -73,11 +83,18 @@ class DashboardView(LoginRequiredMixin, ListView):
             if furniture_category:
                 furniture_subcategories = furniture_category.get_children()
                 furniture_equipment = Equipment.objects.filter(category__in=furniture_subcategories)
-                context['total_furniture'] = furniture_equipment.count()
-                context['furniture_available'] = furniture_equipment.filter(status='available').count()
-                context['furniture_borrowed'] = furniture_equipment.filter(status='borrowed').count()
-                context['furniture_broken'] = furniture_equipment.filter(status='broken').count()
-                context['furniture_service'] = furniture_equipment.filter(status='service').count()
+                furniture_counts = furniture_equipment.aggregate(
+                    total=Count('id'),
+                    available=Count('id', filter=Q(status='available')),
+                    borrowed=Count('id', filter=Q(status='borrowed')),
+                    broken=Count('id', filter=Q(status='broken')),
+                    service=Count('id', filter=Q(status='service')),
+                )
+                context['total_furniture'] = furniture_counts['total']
+                context['furniture_available'] = furniture_counts['available']
+                context['furniture_borrowed'] = furniture_counts['borrowed']
+                context['furniture_broken'] = furniture_counts['broken']
+                context['furniture_service'] = furniture_counts['service']
             else:
                 context['total_furniture'] = 0
                 context['furniture_available'] = 0
@@ -85,11 +102,16 @@ class DashboardView(LoginRequiredMixin, ListView):
                 context['furniture_broken'] = 0
                 context['furniture_service'] = 0
             
-            # Ticket status breakdown
-            context['ticket_new'] = Ticket.objects.filter(status='new').count()
-            context['ticket_in_progress'] = Ticket.objects.filter(status='in_progress').count()
-            context['ticket_completed'] = Ticket.objects.filter(status='completed').count()
-            context['ticket_cancelled'] = Ticket.objects.filter(status='cancelled').count()
+            ticket_counts = Ticket.objects.aggregate(
+                new=Count('id', filter=Q(status='new')),
+                in_progress=Count('id', filter=Q(status='in_progress')),
+                completed=Count('id', filter=Q(status='completed')),
+                cancelled=Count('id', filter=Q(status='cancelled')),
+            )
+            context['ticket_new'] = ticket_counts['new']
+            context['ticket_in_progress'] = ticket_counts['in_progress']
+            context['ticket_completed'] = ticket_counts['completed']
+            context['ticket_cancelled'] = ticket_counts['cancelled']
 
             # ATK stock overview for dashboard chart
             atk_items = ATKItem.objects.select_related('category')

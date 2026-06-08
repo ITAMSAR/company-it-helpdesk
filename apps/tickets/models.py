@@ -22,11 +22,11 @@ class Ticket(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.SET_NULL, null=True, blank=True, 
                                   related_name='tickets', verbose_name='Barang Terkait')
     description = models.TextField(verbose_name='Deskripsi Masalah')
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium', verbose_name='Prioritas')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', verbose_name='Status')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium', db_index=True, verbose_name='Prioritas')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', db_index=True, verbose_name='Status')
     notes = models.TextField(blank=True, verbose_name='Catatan', help_text='Catatan saat tiket selesai atau tidak selesai')
     attachment = models.FileField(upload_to='tickets/', null=True, blank=True, verbose_name='Lampiran')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Tanggal Dibuat')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Tanggal Dibuat')
     completed_at = models.DateTimeField(null=True, blank=True, verbose_name='Tanggal Selesai')
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -34,6 +34,10 @@ class Ticket(models.Model):
         verbose_name = 'Tiket'
         verbose_name_plural = 'Tiket'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['reporter', 'status', '-created_at'], name='ticket_reporter_status_idx'),
+            models.Index(fields=['status', '-created_at'], name='ticket_status_created_idx'),
+        ]
 
     def __str__(self):
         return f"{self.title} - {self.reporter.username}"

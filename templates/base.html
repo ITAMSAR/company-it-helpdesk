@@ -549,10 +549,7 @@
 
         // Auto-hide alerts after 5 seconds with fade animation
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking for messages...');
-            
             const alerts = document.querySelectorAll('.alert');
-            console.log('Found alerts:', alerts.length);
             alerts.forEach(function(alert) {
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(alert);
@@ -567,25 +564,26 @@
             
             // Auto-show toast for Django messages
             const messagesContainer = document.getElementById('django-messages');
-            console.log('Messages container:', messagesContainer);
             if (messagesContainer) {
                 const messageElements = messagesContainer.querySelectorAll('[data-message]');
-                console.log('Found message elements:', messageElements.length);
                 messageElements.forEach(function(el) {
                     const message = el.getAttribute('data-message');
                     const tags = el.getAttribute('data-tags');
-                    console.log('Showing toast:', message, tags);
                     showToast(message, tags);
                 });
             }
         });
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
         
         // Show toast notification function
         function showToast(message, type) {
-            console.log('showToast called:', message, type);
             type = type || 'success';
             const toastContainer = document.querySelector('.toast-container');
-            console.log('Toast container:', toastContainer);
             const toastId = 'toast-' + Date.now();
             
             const icons = {
@@ -604,7 +602,7 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
                     </div>
                     <div class="toast-body">
-                        ${message}
+                        ${escapeHtml(message)}
                     </div>
                 </div>
             `;
@@ -613,7 +611,6 @@
             const toastElement = document.getElementById(toastId);
             const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
             toast.show();
-            console.log('Toast shown:', toastId);
             
             toastElement.addEventListener('hidden.bs.toast', function() {
                 toastElement.remove();

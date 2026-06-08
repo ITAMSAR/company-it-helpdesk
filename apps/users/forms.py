@@ -12,11 +12,17 @@ class EmployeeEmailForm(forms.ModelForm):
         fields = ['full_name', 'employee_id', 'primary_email', 'email_password', 
                   'recovery_email', 'recovery_phone', 'is_active']
         widgets = {
+            'email_password': forms.PasswordInput(render_value=True),
             'primary_email': forms.Textarea(attrs={
                 'rows': 3,
                 'placeholder': 'Masukkan satu atau beberapa email (pisahkan dengan koma)\nContoh: user@example.com, user.work@company.com'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.initial['email_password'] = self.instance.get_plain_email_password()
     
     def clean_primary_email(self):
         """Validate multiple emails separated by comma"""

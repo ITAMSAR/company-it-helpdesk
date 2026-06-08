@@ -3,17 +3,20 @@ from django.contrib.auth.models import User
 
 class EquipmentCategory(models.Model):
     """Model untuk kategori peralatan yang bisa ditambah dinamis dengan hierarki"""
-    name = models.CharField(max_length=100, verbose_name='Nama Kategori')
+    name = models.CharField(max_length=100, db_index=True, verbose_name='Nama Kategori')
     description = models.TextField(blank=True, verbose_name='Deskripsi')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, 
                               related_name='children', verbose_name='Kategori Induk')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     
     class Meta:
         verbose_name = 'Kategori Peralatan'
         verbose_name_plural = 'Kategori Peralatan'
         ordering = ['name']
         unique_together = ['name', 'parent']  # Nama unik per level
+        indexes = [
+            models.Index(fields=['parent', 'name'], name='equip_cat_parent_name_idx'),
+        ]
     
     def __str__(self):
         if self.parent:
@@ -67,23 +70,27 @@ class Equipment(models.Model):
         ('service', 'Servis'),
     ]
     
-    name = models.CharField(max_length=200, verbose_name='Nama Barang')
+    name = models.CharField(max_length=200, db_index=True, verbose_name='Nama Barang')
     inventory_code = models.CharField(max_length=100, unique=True, verbose_name='Kode Inventaris', blank=True)
     category = models.ForeignKey(EquipmentCategory, on_delete=models.PROTECT, 
                                  related_name='equipment', verbose_name='Kategori')
     specifications = models.TextField(blank=True, verbose_name='Spesifikasi')
     current_user = models.CharField(max_length=200, blank=True, verbose_name='Pengguna Saat Ini')
     location = models.CharField(max_length=200, blank=True, verbose_name='Lokasi/Tempat')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name='Status')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', db_index=True, verbose_name='Status')
     purchase_date = models.DateField(null=True, blank=True, verbose_name='Tanggal Pembelian')
     warranty_until = models.DateField(null=True, blank=True, verbose_name='Garansi Sampai')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Peralatan'
         verbose_name_plural = 'Peralatan'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['category', 'status'], name='equip_category_status_idx'),
+            models.Index(fields=['status', '-created_at'], name='equip_status_created_idx'),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.inventory_code})"

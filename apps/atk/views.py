@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db import transaction
+from django.db.models import F
 from .forms import ATKRequestForm
 from .models import ATKItem, ATKCategory, ATKRequest, ATKRequestLine
 from apps.users.views import AdminRequiredMixin
@@ -35,12 +36,7 @@ class ATKItemListView(LoginRequiredMixin, ListView):
         
         stock_status = self.request.GET.get('stock_status')
         if stock_status == 'low':
-            # Filter items with low stock
-            low_stock_items = []
-            for item in queryset:
-                if item.is_low_stock:
-                    low_stock_items.append(item.id)
-            queryset = queryset.filter(id__in=low_stock_items)
+            queryset = queryset.filter(current_stock__gt=0, current_stock__lte=F('minimum_stock'))
         elif stock_status == 'empty':
             queryset = queryset.filter(current_stock=0)
         

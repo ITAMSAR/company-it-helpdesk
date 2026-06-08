@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 
 class ATKCategory(models.Model):
     """Kategori ATK seperti Alat Tulis, Kertas, dll"""
-    name = models.CharField(max_length=100, verbose_name='Nama Kategori')
+    name = models.CharField(max_length=100, db_index=True, verbose_name='Nama Kategori')
     description = models.TextField(blank=True, verbose_name='Deskripsi')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     
     class Meta:
         verbose_name = 'Kategori ATK'
@@ -28,7 +28,7 @@ class ATKItem(models.Model):
         ('set', 'Set'),
     ]
     
-    name = models.CharField(max_length=200, verbose_name='Nama ATK')
+    name = models.CharField(max_length=200, db_index=True, verbose_name='Nama ATK')
     category = models.ForeignKey(ATKCategory, on_delete=models.PROTECT, 
                                 related_name='items', verbose_name='Kategori')
     description = models.TextField(blank=True, verbose_name='Deskripsi')
@@ -39,13 +39,16 @@ class ATKItem(models.Model):
                                         verbose_name='Harga per Satuan')
     supplier = models.CharField(max_length=200, blank=True, verbose_name='Supplier')
     recipient = models.CharField(max_length=200, blank=True, verbose_name='Penerima')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         verbose_name = 'Item ATK'
         verbose_name_plural = 'Item ATK'
         ordering = ['name']
+        indexes = [
+            models.Index(fields=['category', 'name'], name='atk_item_category_name_idx'),
+        ]
     
     def __str__(self):
         return f"{self.name} ({self.current_stock} {self.get_unit_display()})"
@@ -86,7 +89,7 @@ class ATKRequest(models.Model):
     custom_item_name = models.CharField(max_length=200, blank=True, verbose_name='Nama Item Lainnya')
     quantity = models.PositiveIntegerField(default=1, verbose_name='Jumlah')
     purpose = models.TextField(verbose_name='Keperluan')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Status')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True, verbose_name='Status')
     admin_notes = models.TextField(blank=True, verbose_name='Catatan Admin')
     reviewed_by = models.ForeignKey(
         User,
@@ -97,13 +100,17 @@ class ATKRequest(models.Model):
         verbose_name='Direview Oleh'
     )
     reviewed_at = models.DateTimeField(null=True, blank=True, verbose_name='Tanggal Review')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Tanggal Pengajuan')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Tanggal Pengajuan')
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Pengajuan ATK'
         verbose_name_plural = 'Pengajuan ATK'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['requester', 'status', '-created_at'], name='atk_req_requester_status_idx'),
+            models.Index(fields=['status', '-created_at'], name='atk_req_status_created_idx'),
+        ]
 
     def __str__(self):
         return f"{self.display_item_name} - {self.requester.username}"
