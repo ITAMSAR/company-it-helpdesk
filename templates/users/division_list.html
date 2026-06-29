@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Divisi - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">Admin</span>
+            <h2 class="dashboard-title">Divisi</h2>
+            <p class="dashboard-subtitle">Kelola divisi yang digunakan pada akun user dan data internal.</p>
+        </div>
+        <a href="{% url 'users:division_add' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            <span>Tambah Divisi</span>
+        </a>
+    </div>
+
+    <form method="get" class="row g-3">
+        <div class="col-md-10">
+            <input
+                type="search"
+                name="search"
+                class="form-control"
+                placeholder="Cari nama atau deskripsi divisi..."
+                value="{{ request.GET.search }}"
+            >
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">
+                <i class="bi bi-search"></i>
+                Cari
+            </button>
+        </div>
+    </form>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Daftar</span>
+                <h3>Divisi Perusahaan</h3>
+            </div>
+        </div>
+
+        <div class="table-responsive dashboard-ticket-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Deskripsi</th>
+                        <th>Jumlah Anggota</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for division in divisions %}
+                    <tr>
+                        <td class="align-middle"><strong>{{ division.name }}</strong></td>
+                        <td class="align-middle">{{ division.description|default:"-" }}</td>
+                        <td class="align-middle">
+                            <span class="badge bg-info text-dark">{{ division.member_count }}</span>
+                        </td>
+                        <td class="align-middle">
+                            <a
+                                href="{% url 'users:division_edit' division.pk %}"
+                                class="btn btn-sm btn-outline-primary"
+                                title="Edit divisi"
+                            >
+                                <i class="bi bi-pencil"></i>
+                                <span>Edit</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-building fs-1 d-block mb-2"></i>
+                            Belum ada divisi.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Navigasi halaman divisi">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</section>
+{% endblock %}

@@ -55,3 +55,31 @@ class EmployeeEmail(models.Model):
         """Return list of emails"""
         return [e.strip() for e in self.primary_email.split(',') if e.strip()]
 
+
+class Division(models.Model):
+    name = models.CharField(max_length=120, unique=True, db_index=True, verbose_name='Nama Divisi')
+    description = models.TextField(blank=True, verbose_name='Deskripsi')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Divisi'
+        verbose_name_plural = 'Divisi'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    division = models.ForeignKey(Division, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Divisi')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Profil User'
+        verbose_name_plural = 'Profil User'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.division or 'Tanpa Divisi'}"
+

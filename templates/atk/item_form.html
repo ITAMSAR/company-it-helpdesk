@@ -15,13 +15,24 @@
                     <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}" required>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Kategori</label>
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <label class="form-label mb-0">Kategori</label>
+                        <a href="{% url 'atk:category_add' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Tambah Kategori
+                        </a>
+                    </div>
                     <select name="category" class="form-select" required>
                         <option value="">-- Pilih Kategori --</option>
                         {% for cat in form.category.field.queryset %}
                         <option value="{{ cat.id }}" {% if form.category.value == cat.id %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}
                     </select>
+                    {% if not form.category.field.queryset %}
+                    <div class="form-text text-warning fw-semibold">
+                        Belum ada kategori ATK. Tambahkan kategori dulu sebelum simpan item.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="mb-3">
@@ -29,7 +40,7 @@
                 <textarea name="description" class="form-control" rows="3">{{ form.description.value|default:'' }}</textarea>
             </div>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Satuan</label>
                     <select name="unit" class="form-select" required>
                         {% for value, label in form.unit.field.choices %}
@@ -37,15 +48,32 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Stok Saat Ini</label>
-                    <input type="number" name="current_stock" class="form-control" value="{{ form.current_stock.value|default:0 }}" min="0" required>
+            </div>
+            {% if form.division_stock_fields %}
+            <div class="division-stock-panel mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>Stok Gudang Administrator</strong>
+                    <small class="text-muted">Stok / minimum</small>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Stok Minimum</label>
-                    <input type="number" name="minimum_stock" class="form-control" value="{{ form.minimum_stock.value|default:10 }}" min="0" required>
+                <div class="row g-2">
+                    {% for row in form.division_stock_fields %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="division-stock-row">
+                            <span class="division-name">{{ row.division.name }}</span>
+                            {{ row.stock }}
+                            {{ row.minimum }}
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-building me-2"></i>
+                Divisi Administrator belum tersedia. Tambahkan divisi tersebut agar stok gudang bisa diisi.
+                <a href="{% url 'users:division_add' %}" class="alert-link">Tambah Divisi</a>
+            </div>
+            {% endif %}
             <div class="mb-3">
                 <label class="form-label">Penerima</label>
                 <input type="text" name="recipient" class="form-control" value="{{ form.recipient.value|default:'' }}" placeholder="Contoh: Tim IT, John Doe">
@@ -59,4 +87,31 @@
         </form>
     </div>
 </div>
+
+<style>
+    .division-stock-panel {
+        border: 1px solid #dbe5ef;
+        border-radius: 8px;
+        padding: 12px;
+        background: #f8fafc;
+    }
+    .division-stock-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 74px 74px;
+        gap: 8px;
+        align-items: center;
+        padding: 8px;
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #e5edf5;
+    }
+    .division-name {
+        min-width: 0;
+        font-weight: 650;
+        font-size: 0.88rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
 {% endblock %}

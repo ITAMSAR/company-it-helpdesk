@@ -33,6 +33,7 @@
                     <option value="">Semua Status</option>
                     <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Menunggu</option>
                     <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Disetujui</option>
+                    <option value="needs_purchase" {% if request.GET.status == 'needs_purchase' %}selected{% endif %}>Perlu Pembelian</option>
                     <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Ditolak</option>
                 </select>
             </form>
@@ -66,6 +67,8 @@
                             <span class="badge bg-warning text-dark">{{ request_item.get_status_display }}</span>
                             {% elif request_item.status == 'approved' %}
                             <span class="badge bg-success">{{ request_item.get_status_display }}</span>
+                            {% elif request_item.status == 'needs_purchase' %}
+                            <span class="badge bg-info text-dark">{{ request_item.get_status_display }}</span>
                             {% else %}
                             <span class="badge bg-danger">{{ request_item.get_status_display }}</span>
                             {% endif %}

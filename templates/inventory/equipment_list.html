@@ -51,7 +51,7 @@
 </form>
 
 {% if user.is_staff %}
-<form method="post" action="/inventory/bulk-action/" id="bulkInventoryForm">
+<form method="post" action="/inventory/bulk-action/" id="bulkInventoryForm" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="bulk-inventory-toolbar mb-3">
         <div>
@@ -382,14 +382,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             syncHiddenInputs(selection);
-            if (submitter && submitter.hasAttribute('data-confirm-delete')) {
-                const confirmed = confirm(`Hapus ${checkedCount} inventaris yang dipilih? Tindakan ini tidak bisa dibatalkan.`);
-                if (!confirmed) {
-                    event.preventDefault();
-                } else {
-                    localStorage.removeItem(bulkStorageKey);
-                }
-            }
         });
     }
 

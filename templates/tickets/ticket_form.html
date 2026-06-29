@@ -3,10 +3,26 @@
 {% block title %}Buat Tiket - IT Hub Internal{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Buat Tiket Baru</h2>
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">Tiket</span>
+            <h2 class="dashboard-title">Buat Tiket Baru</h2>
+        </div>
+        <a href="{% url 'tickets:ticket_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Kembali</span>
+        </a>
+    </div>
 
-<div class="card">
-    <div class="card-body">
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Form</span>
+                <h3>Informasi Kendala</h3>
+            </div>
+        </div>
+        <div class="p-4">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="mb-3">
@@ -35,6 +51,7 @@
             <button type="submit" class="btn btn-primary">Kirim Tiket</button>
             <a href="{% url 'tickets:ticket_list' %}" class="btn btn-secondary">Batal</a>
         </form>
+        </div>
     </div>
-</div>
+</section>
 {% endblock %}

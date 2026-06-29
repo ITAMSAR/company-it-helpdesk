@@ -4,7 +4,8 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import Equipment, EquipmentCategory
+from django.db import transaction
+from .models import Equipment, EquipmentCategory, EquipmentDeletionLog
 from apps.users.views import AdminRequiredMixin
 
 class EquipmentListView(LoginRequiredMixin, ListView):
@@ -102,10 +103,24 @@ class EquipmentDeleteView(AdminRequiredMixin, DeleteView):
     model = Equipment
     template_name = 'inventory/equipment_confirm_delete.html'
     success_url = reverse_lazy('inventory:equipment_list')
-    
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Peralatan berhasil dihapus!')
-        return super().delete(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        reason = request.POST.get('deletion_reason', '').strip()
+        if not reason:
+            messages.error(request, 'Alasan penghapusan wajib diisi.')
+            return self.get(request, *args, **kwargs)
+
+        with transaction.atomic():
+            EquipmentDeletionLog.from_equipment(
+                self.object,
+                reason=reason,
+                attachment=request.FILES.get('deletion_attachment'),
+                deleted_by=request.user,
+            )
+            self.object.delete()
+        messages.success(request, 'Peralatan berhasil dihapus dan log penghapusan tersimpan.')
+        return redirect(self.success_url)
 
 # Category Management Views
 class CategoryListView(AdminRequiredMixin, ListView):
@@ -389,9 +404,31 @@ def bulk_equipment_action(request):
         return redirect('inventory:equipment_list')
 
     if action == 'delete':
-        count = len(equipment_list)
-        Equipment.objects.filter(id__in=[equipment.id for equipment in equipment_list]).delete()
-        messages.success(request, f'{count} inventaris berhasil dihapus.')
+        reason = request.POST.get('deletion_reason', '').strip()
+        confirmed = request.POST.get('confirm_delete') == '1'
+        if not confirmed:
+            return render(request, 'inventory/equipment_bulk_confirm_delete.html', {
+                'equipment_list': equipment_list,
+                'selected_ids': [equipment.id for equipment in equipment_list],
+            })
+        if not reason:
+            messages.error(request, 'Alasan penghapusan wajib diisi.')
+            return render(request, 'inventory/equipment_bulk_confirm_delete.html', {
+                'equipment_list': equipment_list,
+                'selected_ids': [equipment.id for equipment in equipment_list],
+            })
+
+        attachment = request.FILES.get('deletion_attachment')
+        with transaction.atomic():
+            for equipment in equipment_list:
+                EquipmentDeletionLog.from_equipment(
+                    equipment,
+                    reason=reason,
+                    attachment=attachment,
+                    deleted_by=request.user,
+                )
+            Equipment.objects.filter(id__in=[equipment.id for equipment in equipment_list]).delete()
+        messages.success(request, f'{len(equipment_list)} inventaris berhasil dihapus dan log tersimpan.')
         return redirect('inventory:equipment_list')
 
     if action == 'export_excel':

@@ -14,7 +14,12 @@
     <div class="col-md-8">
         <div class="card mb-3">
             <div class="card-body">
-                <h4>{{ ticket.title }}</h4>
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                        <code class="fw-bold">{{ ticket.ticket_code }}</code>
+                        <h4 class="mt-2 mb-0">{{ ticket.title }}</h4>
+                    </div>
+                </div>
                 <hr>
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -45,6 +50,7 @@
                             {% endif %}
                         </p>
                         <p><strong>Tanggal Dibuat:</strong> {{ ticket.created_at|date:"d M Y H:i" }}</p>
+                        <p><strong>Estimasi Selesai:</strong> {{ ticket.estimated_completion_at|date:"d M Y H:i"|default:"-" }}</p>
                         {% if ticket.completed_at %}
                         <p><strong>Tanggal Selesai:</strong> {{ ticket.completed_at|date:"d M Y H:i" }}</p>
                         {% endif %}
@@ -90,6 +96,10 @@
                             <option value="completed" {% if ticket.status == 'completed' %}selected{% endif %}>Selesai</option>
                             <option value="cancelled" {% if ticket.status == 'cancelled' %}selected{% endif %}>Tidak Selesai</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estimasi Selesai</label>
+                        <input type="datetime-local" name="estimated_completion_at" class="form-control" value="{{ ticket.estimated_completion_at|date:'Y-m-d\TH:i' }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Catatan (Opsional)</label>

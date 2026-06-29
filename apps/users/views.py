@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Q
 import json
-from .models import EmployeeEmail
+from .models import Division, EmployeeEmail
 from .forms import AccountCreateForm, AccountUpdateForm, EmployeeEmailForm
 from apps.inventory.models import Equipment
 from apps.tickets.models import Ticket
@@ -167,7 +167,7 @@ class AccountListView(AdminRequiredMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        queryset = User.objects.order_by('username')
+        queryset = User.objects.select_related('profile__division').order_by('username')
 
         search = self.request.GET.get('search')
         if search:
@@ -176,6 +176,7 @@ class AccountListView(AdminRequiredMixin, ListView):
                 | Q(first_name__icontains=search)
                 | Q(last_name__icontains=search)
                 | Q(email__icontains=search)
+                | Q(profile__division__name__icontains=search)
             )
 
         role = self.request.GET.get('role')
@@ -191,6 +192,11 @@ class AccountListView(AdminRequiredMixin, ListView):
             queryset = queryset.filter(is_active=False)
 
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['divisions'] = Division.objects.all()
+        return context
 
 
 class AccountCreateView(AdminRequiredMixin, CreateView):
@@ -216,6 +222,42 @@ class AccountUpdateView(AdminRequiredMixin, UpdateView):
                 messages.error(self.request, 'Anda tidak bisa menonaktifkan atau mencabut role admin akun sendiri.')
                 return self.form_invalid(form)
         messages.success(self.request, 'Akun user berhasil diupdate.')
+        return super().form_valid(form)
+
+
+class DivisionListView(AdminRequiredMixin, ListView):
+    model = Division
+    template_name = 'users/division_list.html'
+    context_object_name = 'divisions'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Division.objects.annotate(member_count=Count('members')).order_by('name')
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(Q(name__icontains=search) | Q(description__icontains=search))
+        return queryset
+
+
+class DivisionCreateView(AdminRequiredMixin, CreateView):
+    model = Division
+    template_name = 'users/division_form.html'
+    fields = ['name', 'description']
+    success_url = reverse_lazy('users:division_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Divisi berhasil ditambahkan.')
+        return super().form_valid(form)
+
+
+class DivisionUpdateView(AdminRequiredMixin, UpdateView):
+    model = Division
+    template_name = 'users/division_form.html'
+    fields = ['name', 'description']
+    success_url = reverse_lazy('users:division_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Divisi berhasil diupdate.')
         return super().form_valid(form)
 
 # Email Management Views

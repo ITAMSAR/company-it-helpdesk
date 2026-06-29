@@ -41,7 +41,7 @@
                                 <select name="item" class="form-select">
                                     <option value="">-- Item tidak ada di list / lainnya --</option>
                                     {% for item in atk_items %}
-                                    <option value="{{ item.id }}">{{ item.name }} - stok {{ item.current_stock }} {{ item.get_unit_display }}</option>
+                                    <option value="{{ item.id }}">{{ item.name }} - stok Administrator {{ item.request_stock }} {{ item.get_unit_display }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

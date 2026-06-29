@@ -128,3 +128,38 @@ class Equipment(models.Model):
         if not self.inventory_code:
             self.inventory_code = self.generate_inventory_code()
         super().save(*args, **kwargs)
+
+
+class EquipmentDeletionLog(models.Model):
+    equipment_name = models.CharField(max_length=200, verbose_name='Nama Barang')
+    inventory_code = models.CharField(max_length=100, db_index=True, verbose_name='Kode Inventaris')
+    category_name = models.CharField(max_length=200, verbose_name='Kategori')
+    status = models.CharField(max_length=50, verbose_name='Status Terakhir')
+    current_user = models.CharField(max_length=200, blank=True, verbose_name='Pengguna Terakhir')
+    location = models.CharField(max_length=200, blank=True, verbose_name='Lokasi Terakhir')
+    reason = models.TextField(verbose_name='Alasan Penghapusan')
+    attachment = models.FileField(upload_to='inventory/deletion-logs/', null=True, blank=True, verbose_name='Lampiran Penghapusan')
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='equipment_deletion_logs', verbose_name='Dihapus Oleh')
+    deleted_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Tanggal Penghapusan')
+
+    class Meta:
+        verbose_name = 'Log Penghapusan Aset'
+        verbose_name_plural = 'Log Penghapusan Aset'
+        ordering = ['-deleted_at']
+
+    def __str__(self):
+        return f"{self.inventory_code} dihapus oleh {self.deleted_by or '-'}"
+
+    @classmethod
+    def from_equipment(cls, equipment, *, reason, attachment=None, deleted_by=None):
+        return cls.objects.create(
+            equipment_name=equipment.name,
+            inventory_code=equipment.inventory_code,
+            category_name=equipment.category.full_path,
+            status=equipment.get_status_display(),
+            current_user=equipment.current_user,
+            location=equipment.location,
+            reason=reason,
+            attachment=attachment,
+            deleted_by=deleted_by,
+        )

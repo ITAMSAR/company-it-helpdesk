@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Ticket
@@ -21,7 +22,7 @@ class TicketListView(LoginRequiredMixin, ListView):
         
         search = self.request.GET.get('search')
         if search:
-            queryset = queryset.filter(title__icontains=search)
+            queryset = queryset.filter(title__icontains=search) | queryset.filter(ticket_code__icontains=search)
         
         status = self.request.GET.get('status')
         if status:
@@ -64,9 +65,11 @@ def update_ticket_status(request, pk):
     if request.method == 'POST':
         new_status = request.POST.get('status')
         notes = request.POST.get('notes', '')
+        estimated_completion_at = request.POST.get('estimated_completion_at')
         
         ticket.status = new_status
         ticket.notes = notes
+        ticket.estimated_completion_at = parse_datetime(estimated_completion_at) if estimated_completion_at else None
         
         # Set completed_at jika status selesai atau tidak selesai
         if new_status in ['completed', 'cancelled']:
@@ -113,7 +116,7 @@ def export_tickets_excel(request):
     header_alignment = Alignment(horizontal="center", vertical="center")
     
     # Headers
-    headers = ['No', 'Judul', 'Pelapor', 'Deskripsi', 'Prioritas', 'Status', 'Catatan', 'Tanggal Dibuat', 'Tanggal Selesai']
+    headers = ['No', 'ID Tiket', 'Judul', 'Pelapor', 'Deskripsi', 'Prioritas', 'Status', 'Estimasi Selesai', 'Catatan', 'Tanggal Dibuat', 'Tanggal Selesai']
     for col, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=header)
         cell.fill = header_fill
@@ -124,14 +127,16 @@ def export_tickets_excel(request):
     tickets = Ticket.objects.select_related('reporter').all().order_by('-created_at')
     for row, ticket in enumerate(tickets, 2):
         ws.cell(row=row, column=1, value=row-1)
-        ws.cell(row=row, column=2, value=ticket.title)
-        ws.cell(row=row, column=3, value=ticket.reporter.username)
-        ws.cell(row=row, column=4, value=ticket.description)
-        ws.cell(row=row, column=5, value=ticket.get_priority_display())
-        ws.cell(row=row, column=6, value=ticket.get_status_display())
-        ws.cell(row=row, column=7, value=ticket.notes or '-')
-        ws.cell(row=row, column=8, value=ticket.created_at.strftime('%d/%m/%Y %H:%M'))
-        ws.cell(row=row, column=9, value=ticket.completed_at.strftime('%d/%m/%Y %H:%M') if ticket.completed_at else '-')
+        ws.cell(row=row, column=2, value=ticket.ticket_code)
+        ws.cell(row=row, column=3, value=ticket.title)
+        ws.cell(row=row, column=4, value=ticket.reporter.username)
+        ws.cell(row=row, column=5, value=ticket.description)
+        ws.cell(row=row, column=6, value=ticket.get_priority_display())
+        ws.cell(row=row, column=7, value=ticket.get_status_display())
+        ws.cell(row=row, column=8, value=ticket.estimated_completion_at.strftime('%d/%m/%Y %H:%M') if ticket.estimated_completion_at else '-')
+        ws.cell(row=row, column=9, value=ticket.notes or '-')
+        ws.cell(row=row, column=10, value=ticket.created_at.strftime('%d/%m/%Y %H:%M'))
+        ws.cell(row=row, column=11, value=ticket.completed_at.strftime('%d/%m/%Y %H:%M') if ticket.completed_at else '-')
     
     # Adjust column widths
     ws.column_dimensions['A'].width = 5

@@ -19,7 +19,7 @@
 
 <form method="get" class="row g-3 mb-4">
     <div class="col-md-6">
-        <input type="text" name="search" class="form-control" placeholder="Cari judul tiket..." value="{{ request.GET.search }}">
+        <input type="text" name="search" class="form-control" placeholder="Cari ID atau judul tiket..." value="{{ request.GET.search }}">
     </div>
     <div class="col-md-4">
         <select name="status" class="form-select">
@@ -39,10 +39,12 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>ID Tiket</th>
                 <th>Judul</th>
                 <th>Pelapor</th>
                 <th>Prioritas</th>
                 <th>Status</th>
+                <th>Estimasi</th>
                 <th>Tanggal</th>
                 <th>Aksi</th>
             </tr>
@@ -50,6 +52,7 @@
         <tbody>
             {% for ticket in tickets %}
             <tr>
+                <td><code class="fw-bold">{{ ticket.ticket_code }}</code></td>
                 <td>{{ ticket.title }}</td>
                 <td>{{ ticket.reporter.username }}</td>
                 <td>
@@ -72,6 +75,7 @@
                     <span class="badge bg-danger">{{ ticket.get_status_display }}</span>
                     {% endif %}
                 </td>
+                <td>{{ ticket.estimated_completion_at|date:"d M H:i"|default:"-" }}</td>
                 <td>{{ ticket.created_at|date:"d M Y H:i" }}</td>
                 <td>
                     <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="btn btn-sm btn-info">Detail</a>
@@ -85,7 +89,7 @@
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" class="text-center">Belum ada tiket</td></tr>
+            <tr><td colspan="8" class="text-center">Belum ada tiket</td></tr>
             {% endfor %}
         </tbody>
     </table>

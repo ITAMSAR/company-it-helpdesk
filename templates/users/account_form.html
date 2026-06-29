@@ -60,6 +60,17 @@
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">Divisi</label>
+                    <select name="division" class="form-select {% if form.division.errors %}is-invalid{% endif %}">
+                        <option value="">Tanpa Divisi</option>
+                        {% for division in form.division.field.queryset %}
+                        <option value="{{ division.pk }}" {% if form.division.value|stringformat:"s" == division.pk|stringformat:"s" %}selected{% endif %}>{{ division.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.division.errors %}<div class="invalid-feedback">{{ form.division.errors.0 }}</div>{% endif %}
+                </div>
+
                 {% if object %}
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
@@ -98,15 +109,15 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Role</label>
                         <select name="is_staff" class="form-select">
-                            <option value="" {% if not form.is_staff.value %}selected{% endif %}>User</option>
-                            <option value="on" {% if form.is_staff.value %}selected{% endif %}>Administrator</option>
+                            <option value="false" {% if form.is_staff.value|stringformat:"s" == "false" %}selected{% endif %}>User</option>
+                            <option value="true" {% if form.is_staff.value|stringformat:"s" == "true" %}selected{% endif %}>Administrator</option>
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Status</label>
                         <select name="is_active" class="form-select">
-                            <option value="on" {% if form.is_active.value or form.is_active.value == None %}selected{% endif %}>Aktif</option>
-                            <option value="" {% if form.is_active.value == False %}selected{% endif %}>Nonaktif</option>
+                            <option value="true" {% if form.is_active.value|stringformat:"s" == "true" %}selected{% endif %}>Aktif</option>
+                            <option value="false" {% if form.is_active.value|stringformat:"s" == "false" %}selected{% endif %}>Nonaktif</option>
                         </select>
                     </div>
                 </div>

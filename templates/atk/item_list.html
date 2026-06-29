@@ -17,12 +17,40 @@
         <a href="{% url 'atk:item_add' %}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Tambah Item ATK
         </a>
+        {% else %}
+        <a href="{% url 'atk:request_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Ajukan ATK
+        </a>
+        <a href="{% url 'atk:request_list' %}" class="btn btn-outline-primary ms-2">
+            <i class="bi bi-clipboard-check"></i> Pengajuan Saya
+        </a>
         {% endif %}
     </div>
 </div>
 
+<section class="atk-stock-panel mb-4">
+    <div class="atk-division-grid">
+        {% for card in division_stock_cards %}
+        <a class="atk-division-tile {% if selected_division and selected_division.pk == card.division.pk %}active{% endif %}" href="{% url 'atk:item_list' %}?scope=division&division={{ card.division.pk }}">
+            <div class="atk-division-main">
+                <span><i class="bi bi-building"></i> {{ card.division.name }}</span>
+            </div>
+            <div class="atk-summary-metrics">
+                <span>{{ card.item_count }} item</span>
+                <span>{{ card.low_count }} menipis</span>
+                <span>{{ card.empty_count }} habis</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
 <!-- Filter Form -->
 <form method="get" class="row g-3 mb-4">
+    <input type="hidden" name="scope" value="{{ selected_scope }}">
+    {% if selected_division %}
+    <input type="hidden" name="division" value="{{ selected_division.pk }}">
+    {% endif %}
     <div class="col-md-4">
         <input type="text" name="search" class="form-control" placeholder="Cari nama item..." value="{{ request.GET.search }}">
     </div>
@@ -47,18 +75,35 @@
 </form>
 
 <!-- Items Table -->
+{% if has_stock_scope %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div>
+        <span class="text-uppercase text-muted fw-bold small">Detail Stok</span>
+        <h5 class="mb-0">
+            {% if selected_division %}
+            {{ selected_division.name }}
+            {% endif %}
+        </h5>
+    </div>
+    {% if selected_division and user.is_staff %}
+    <a href="{% url 'atk:item_add' %}" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-pencil-square"></i>
+        Update dari form item
+    </a>
+    {% endif %}
+</div>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
                 <th>Nama Item</th>
                 <th>Kategori</th>
-                <th>Stok Saat Ini</th>
-                <th>Stok Minimum</th>
+                <th>Stok Fokus</th>
+                <th>Minimum</th>
                 <th>Satuan</th>
                 <th>Status</th>
-                <th>Penerima</th>
                 {% if user.is_staff %}
+                <th>Riwayat Pemohon</th>
                 <th>Aksi</th>
                 {% endif %}
             </tr>
@@ -74,25 +119,39 @@
                 </td>
                 <td><span class="badge bg-info">{{ item.category.name }}</span></td>
                 <td>
-                    <span class="fw-bold {% if item.current_stock == 0 %}text-danger{% elif item.is_low_stock %}text-warning{% else %}text-success{% endif %}">
-                        {{ item.current_stock }}
-                    </span>
+                    <div class="stock-compact">
+                        <span class="stock-chip">
+                            <small>{{ item.selected_stock_label }}</small>
+                            <strong class="{% if item.selected_stock == 0 %}text-danger{% elif item.selected_stock_status == 'Menipis' %}text-warning{% else %}text-success{% endif %}">{{ item.selected_stock }}</strong>
+                        </span>
+                    </div>
                 </td>
-                <td>{{ item.minimum_stock }}</td>
+                <td>{{ item.selected_minimum }}</td>
                 <td>{{ item.get_unit_display }}</td>
                 <td>
-                    {% if item.current_stock == 0 %}
-                        <span class="badge bg-danger">Habis</span>
-                    {% elif item.is_low_stock %}
+                    {% if item.selected_stock_status == 'Habis' %}
+                    <span class="badge bg-danger">Habis</span>
+                    {% elif item.selected_stock_status == 'Menipis' %}
                         <span class="badge bg-warning">Menipis</span>
                     {% else %}
                         <span class="badge bg-success">Aman</span>
                     {% endif %}
                 </td>
-                <td>{{ item.recipient|default:"-" }}</td>
                 {% if user.is_staff %}
                 <td>
+                    <a href="{% url 'atk:item_detail' item.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-people"></i>
+                        {{ item.approved_request_count }} penerima
+                    </a>
+                    {% if item.pending_request_count %}
+                    <div><small class="text-warning fw-semibold">{{ item.pending_request_count }} menunggu</small></div>
+                    {% endif %}
+                </td>
+                <td>
                     <div class="d-flex gap-1">
+                        <a href="{% url 'atk:item_detail' item.pk %}" class="btn btn-sm btn-outline-primary" title="Detail pemohon">
+                            <i class="bi bi-eye"></i>
+                        </a>
                         <a href="{% url 'atk:item_edit' item.pk %}" class="btn btn-sm btn-warning" title="Edit">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
@@ -104,7 +163,7 @@
                 {% endif %}
             </tr>
             {% empty %}
-            <tr><td colspan="{% if user.is_staff %}8{% else %}7{% endif %}" class="text-center py-4">
+            <tr><td colspan="{% if user.is_staff %}8{% else %}6{% endif %}" class="text-center py-4">
                 <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
                 <span class="text-muted">Belum ada item ATK</span>
             </td></tr>
@@ -112,6 +171,12 @@
         </tbody>
     </table>
 </div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-building me-2"></i>
+    Akun Anda belum memiliki divisi, jadi stok ATK belum bisa ditampilkan.
+</div>
+{% endif %}
 
 <!-- Pagination -->
 {% if is_paginated %}
@@ -119,7 +184,7 @@
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">Previous</a>
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&scope={{ selected_scope }}{% if selected_division %}&division={{ selected_division.pk }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">Previous</a>
         </li>
         {% endif %}
         
@@ -128,14 +193,14 @@
         <li class="page-item active"><span class="page-link">{{ num }}</span></li>
         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">{{ num }}</a>
+            <a class="page-link" href="?page={{ num }}&scope={{ selected_scope }}{% if selected_division %}&division={{ selected_division.pk }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">{{ num }}</a>
         </li>
         {% endif %}
         {% endfor %}
         
         {% if page_obj.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">Next</a>
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&scope={{ selected_scope }}{% if selected_division %}&division={{ selected_division.pk }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.stock_status %}&stock_status={{ request.GET.stock_status }}{% endif %}">Next</a>
         </li>
         {% endif %}
     </ul>
@@ -146,4 +211,101 @@
     <i class="bi bi-arrow-left"></i> Kembali ke ATK
 </a>
 
+<style>
+    .atk-stock-panel {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #dbe5ef;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .atk-division-tile.active,
+    .atk-division-tile:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 10px 24px rgba(2, 132, 199, 0.12);
+        color: #0f2a3f;
+    }
+
+    .atk-division-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+    }
+
+    .atk-division-tile {
+        display: grid;
+        gap: 8px;
+        min-height: 76px;
+        padding: 12px;
+        border: 1px solid #dbe5ef;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #122033;
+        text-decoration: none;
+        transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .atk-division-main {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .atk-division-main span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        color: #52647a;
+        font-weight: 800;
+    }
+
+    .atk-summary-metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .atk-summary-metrics span {
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 0.74rem;
+        font-weight: 800;
+    }
+
+    .stock-compact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-width: 360px;
+    }
+    .stock-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border: 1px solid #dbe5ef;
+        border-radius: 8px;
+        background: #fff;
+        line-height: 1;
+    }
+    .stock-chip small {
+        color: #64748b;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .stock-chip.muted {
+        background: #f8fafc;
+    }
+    .stock-chip.accent {
+        border-color: #bae6fd;
+        background: #f0f9ff;
+    }
+
+</style>
 {% endblock %}

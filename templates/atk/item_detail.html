@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail {{ item.name }} - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">ATK</span>
+            <h2 class="dashboard-title">{{ item.name }}</h2>
+            <p class="dashboard-subtitle">
+                {{ item.category.name }}{% if item.description %} · {{ item.description }}{% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'atk:item_edit' item.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i>
+                <span>Edit</span>
+            </a>
+            <a href="{% url 'atk:item_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i>
+                <span>Kembali</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="dashboard-panel h-100 p-4">
+                <span class="dashboard-eyebrow">Disalurkan</span>
+                <div class="fs-2 fw-bold">{{ total_approved_quantity }}</div>
+                <span class="text-muted">{{ item.get_unit_display }}</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-panel h-100 p-4">
+                <span class="dashboard-eyebrow">Pengajuan</span>
+                <div class="fs-2 fw-bold">{{ approved_count }}</div>
+                <span class="text-muted">disetujui</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-panel h-100 p-4">
+                <span class="dashboard-eyebrow">Menunggu</span>
+                <div class="fs-2 fw-bold">{{ pending_count }}</div>
+                <span class="text-muted">{{ purchase_count }} perlu pembelian</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-panel mb-4">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Distribusi</span>
+                <h3>Stok Per Divisi</h3>
+            </div>
+        </div>
+        <div class="table-responsive dashboard-ticket-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Divisi</th>
+                        <th>Stok</th>
+                        <th>Minimum</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in division_stocks %}
+                    <tr>
+                        <td class="align-middle"><strong>{{ stock.division.name }}</strong></td>
+                        <td class="align-middle">{{ stock.current_stock }} {{ item.get_unit_display }}</td>
+                        <td class="align-middle">{{ stock.minimum_stock }}</td>
+                        <td class="align-middle">
+                            {% if stock.stock_status == 'Habis' %}
+                            <span class="badge bg-danger">Habis</span>
+                            {% elif stock.stock_status == 'Menipis' %}
+                            <span class="badge bg-warning text-dark">Menipis</span>
+                            {% else %}
+                            <span class="badge bg-success">Aman</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">Belum ada stok divisi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Riwayat</span>
+                <h3>Pengajuan Item</h3>
+            </div>
+        </div>
+        <div class="table-responsive dashboard-ticket-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Pemohon</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in request_lines %}
+                    <tr>
+                        <td class="align-middle">{{ line.request.requester.username }}</td>
+                        <td class="align-middle">{{ line.quantity }} {{ item.get_unit_display }}</td>
+                        <td class="align-middle">
+                            {% if line.request.status == 'approved' %}
+                            <span class="badge bg-success">{{ line.request.get_status_display }}</span>
+                            {% elif line.request.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">{{ line.request.get_status_display }}</span>
+                            {% elif line.request.status == 'needs_purchase' %}
+                            <span class="badge bg-info text-dark">{{ line.request.get_status_display }}</span>
+                            {% else %}
+                            <span class="badge bg-danger">{{ line.request.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle text-muted">{{ line.request.created_at|date:"d M Y H:i" }}</td>
+                        <td class="align-middle">
+                            <a href="{% url 'atk:request_detail' line.request.pk %}" class="btn btn-sm btn-outline-primary" title="Lihat pengajuan">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">Belum ada riwayat pengajuan.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

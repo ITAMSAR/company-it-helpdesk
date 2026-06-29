@@ -3,7 +3,13 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from .models import EmployeeEmail
+from .models import Division, EmployeeEmail, UserProfile
+
+
+BOOLEAN_CHOICES = [
+    ('true', 'Ya'),
+    ('false', 'Tidak'),
+]
 
 
 class EmployeeEmailForm(forms.ModelForm):
@@ -58,8 +64,24 @@ class AccountCreateForm(UserCreationForm):
     email = forms.EmailField(required=False, label='Email')
     first_name = forms.CharField(required=False, max_length=150, label='Nama Depan')
     last_name = forms.CharField(required=False, max_length=150, label='Nama Belakang')
-    is_staff = forms.BooleanField(required=False, label='Administrator')
-    is_active = forms.BooleanField(required=False, initial=True, label='Aktif')
+    division = forms.ModelChoiceField(
+        queryset=Division.objects.all(),
+        required=False,
+        label='Divisi',
+        empty_label='Tanpa Divisi'
+    )
+    is_staff = forms.TypedChoiceField(
+        choices=[('false', 'User'), ('true', 'Administrator')],
+        coerce=lambda value: value == 'true',
+        initial='false',
+        label='Role'
+    )
+    is_active = forms.TypedChoiceField(
+        choices=[('true', 'Aktif'), ('false', 'Nonaktif')],
+        coerce=lambda value: value == 'true',
+        initial='true',
+        label='Status'
+    )
 
     class Meta:
         model = User
@@ -68,11 +90,21 @@ class AccountCreateForm(UserCreationForm):
             'first_name',
             'last_name',
             'email',
+            'division',
             'password1',
             'password2',
             'is_staff',
             'is_active',
         ]
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            UserProfile.objects.update_or_create(
+                user=user,
+                defaults={'division': self.cleaned_data.get('division')}
+            )
+        return user
 
 
 class AccountUpdateForm(forms.ModelForm):
@@ -87,10 +119,35 @@ class AccountUpdateForm(forms.ModelForm):
         widget=forms.PasswordInput,
         label='Konfirmasi Password Baru'
     )
+    division = forms.ModelChoiceField(
+        queryset=Division.objects.all(),
+        required=False,
+        label='Divisi',
+        empty_label='Tanpa Divisi'
+    )
+    is_staff = forms.TypedChoiceField(
+        choices=[('false', 'User'), ('true', 'Administrator')],
+        coerce=lambda value: value == 'true',
+        label='Role'
+    )
+    is_active = forms.TypedChoiceField(
+        choices=[('true', 'Aktif'), ('false', 'Nonaktif')],
+        coerce=lambda value: value == 'true',
+        label='Status'
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active']
+        fields = ['username', 'first_name', 'last_name', 'email', 'division', 'is_staff', 'is_active']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.initial['is_staff'] = 'true' if self.instance.is_staff else 'false'
+            self.initial['is_active'] = 'true' if self.instance.is_active else 'false'
+            profile = getattr(self.instance, 'profile', None)
+            if profile:
+                self.initial['division'] = profile.division_id
 
     def clean(self):
         cleaned_data = super().clean()
@@ -110,4 +167,8 @@ class AccountUpdateForm(forms.ModelForm):
             user.set_password(password)
         if commit:
             user.save()
+            UserProfile.objects.update_or_create(
+                user=user,
+                defaults={'division': self.cleaned_data.get('division')}
+            )
         return user

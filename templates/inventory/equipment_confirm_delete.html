@@ -47,8 +47,17 @@
                     </table>
                 </div>
                 
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Alasan Penghapusan <span class="text-danger">*</span></label>
+                        <textarea name="deletion_reason" class="form-control" rows="4" required placeholder="Contoh: aset rusak permanen, hilang, atau sudah diganti."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Lampiran Penghapusan</label>
+                        <input type="file" name="deletion_attachment" class="form-control">
+                        <small class="text-muted">Opsional, bisa berupa foto kondisi aset atau dokumen persetujuan.</small>
+                    </div>
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-trash"></i> Ya, Hapus
                     </button>

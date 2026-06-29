@@ -406,6 +406,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'division_list' or request.resolver_match.url_name == 'division_add' or request.resolver_match.url_name == 'division_edit' %}active{% endif %}" href="{% url 'users:division_list' %}">
+                            <i class="bi bi-building"></i> Divisi
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'email_list' or request.resolver_match.url_name == 'email_add' or request.resolver_match.url_name == 'email_edit' %}active{% endif %}" href="{% url 'users:email_list' %}">
                             <i class="bi bi-envelope"></i> Email Karyawan
                         </a>
@@ -429,7 +434,7 @@
                     {% endif %}
                     {% if not user.is_staff %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'atk' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'atk:request_list' %}">
+                        <a class="nav-link {% if 'atk' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'atk:item_list' %}">
                             <i class="bi bi-pencil-square"></i> ATK
                             {% if nav_pending_atk_requests %}<span class="nav-badge">{{ nav_pending_atk_requests }}</span>{% endif %}
                         </a>

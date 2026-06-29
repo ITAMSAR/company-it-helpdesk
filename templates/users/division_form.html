@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Tambah{% endif %} Divisi - IT Hub Internal{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-hero">
+        <div>
+            <span class="dashboard-eyebrow">Admin</span>
+            <h2 class="dashboard-title">{% if object %}Edit Divisi{% else %}Tambah Divisi{% endif %}</h2>
+            <p class="dashboard-subtitle">
+                {% if object %}
+                Perbarui nama atau deskripsi divisi.
+                {% else %}
+                Tambahkan divisi baru untuk pengelompokan akun user.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Ada field yang perlu diperbaiki. Cek kembali data divisi.
+    </div>
+    {% endif %}
+
+    <div class="dashboard-panel">
+        <div class="dashboard-panel-header">
+            <div>
+                <span class="dashboard-eyebrow">Form</span>
+                <h3>Data Divisi</h3>
+            </div>
+        </div>
+        <div class="p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">Nama Divisi</label>
+                    <input
+                        type="text"
+                        id="{{ form.name.id_for_label }}"
+                        name="{{ form.name.html_name }}"
+                        class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                        value="{{ form.name.value|default:'' }}"
+                        maxlength="120"
+                        required
+                        autofocus
+                    >
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Deskripsi</label>
+                    <textarea
+                        id="{{ form.description.id_for_label }}"
+                        name="{{ form.description.html_name }}"
+                        class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                        rows="4"
+                    >{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    Simpan
+                </button>
+                <a href="{% url 'users:division_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Batal
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
