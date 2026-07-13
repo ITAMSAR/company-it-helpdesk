@@ -9,7 +9,18 @@ EMAIL_PASSWORD_SECRET = config('EMAIL_PASSWORD_SECRET', default=SECRET_KEY)
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+# Auto-detect IP untuk ALLOWED_HOSTS
+try:
+    from .auto_ip import get_dynamic_allowed_hosts
+    # Combine static hosts dari .env dengan dynamic hosts
+    static_hosts = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+    dynamic_hosts = get_dynamic_allowed_hosts()
+    ALLOWED_HOSTS = list(set(static_hosts + dynamic_hosts))
+    print(f"✅ ALLOWED_HOSTS updated with current IP: {len(ALLOWED_HOSTS)} hosts")
+except Exception as e:
+    # Fallback ke static hosts saja
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+    print(f"⚠️ Using static ALLOWED_HOSTS only: {e}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',

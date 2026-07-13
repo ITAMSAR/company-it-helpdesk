@@ -22,7 +22,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -43,6 +43,50 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <!-- Multiple Photos Upload Section -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="bi bi-images"></i> Foto Barang (Multiple - Opsional)
+                </label>
+                <p class="text-muted small mb-2">
+                    Upload beberapa foto dari berbagai sudut (depan, belakang, kiri, kanan, dll). 
+                    Foto akan otomatis dikompres untuk hemat storage. Max 3MB per foto.
+                </p>
+                
+                <!-- Existing Photos (Edit Mode) -->
+                {% if existing_photos %}
+                <div class="mb-3">
+                    <strong>Foto Saat Ini:</strong>
+                    <div class="row g-2 mt-2" id="existingPhotosGrid">
+                        {% for photo in existing_photos %}
+                        <div class="col-md-3 col-6" id="existing-photo-{{ photo.id }}">
+                            <div class="card">
+                                <img src="{{ photo.image.url }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ photo.get_position_display }}">
+                                <div class="card-body p-2">
+                                    <small class="d-block"><strong>{{ photo.get_position_display }}</strong></small>
+                                    {% if photo.caption %}
+                                    <small class="text-muted d-block">{{ photo.caption }}</small>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-sm btn-danger w-100 mt-1 delete-existing-photo" data-photo-id="{{ photo.id }}">
+                                        <i class="bi bi-trash"></i> Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Upload New Photos -->
+                <button type="button" class="btn btn-outline-primary mb-2" id="addPhotoBtn">
+                    <i class="bi bi-plus-circle"></i> Tambah Foto
+                </button>
+                
+                <div id="photosContainer"></div>
+            </div>
+            
             <div class="row">
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Kategori Utama</label>
@@ -141,6 +185,136 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const mainCategoryFormSelect = document.getElementById('mainCategoryFormSelect');
     const subCategoryFormSelect = document.getElementById('subCategoryFormSelect');
+    
+    // Multiple photos management
+    const photosContainer = document.getElementById('photosContainer');
+    const addPhotoBtn = document.getElementById('addPhotoBtn');
+    let photoCounter = 0;
+    
+    // Get position choices from Django
+    const positionChoicesData = [
+        ['front', 'Tampak Depan'],
+        ['back', 'Tampak Belakang'], 
+        ['left', 'Tampak Kiri'],
+        ['right', 'Tampak Kanan'],
+        ['top', 'Tampak Atas'],
+        ['bottom', 'Tampak Bawah'],
+        ['detail', 'Detail/Close-up'],
+        ['other', 'Lainnya']
+    ];
+    
+    // Add photo input
+    addPhotoBtn.addEventListener('click', function() {
+        photoCounter++;
+        const photoDiv = document.createElement('div');
+        photoDiv.className = 'card mb-2';
+        photoDiv.id = `photo-item-${photoCounter}`;
+        photoDiv.innerHTML = `
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-5 mb-2">
+                        <label class="form-label small">Pilih Foto</label>
+                        <input type="file" name="photos" class="form-control form-control-sm photo-input" 
+                               accept="image/*" data-counter="${photoCounter}" required>
+                        <small class="text-muted">Max 3MB</small>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label small">Posisi</label>
+                        <select name="photo_positions" class="form-select form-select-sm">
+                            ${positionChoicesData.map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label small">Keterangan</label>
+                        <input type="text" name="photo_captions" class="form-control form-control-sm" 
+                               placeholder="Optional">
+                    </div>
+                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-sm btn-danger remove-photo-btn" data-counter="${photoCounter}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="photo-preview-${photoCounter}" style="display: none;">
+                    <img src="" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 8px; margin-top: 8px;">
+                </div>
+            </div>
+        `;
+        photosContainer.appendChild(photoDiv);
+        
+        // Handle file input change for preview
+        const fileInput = photoDiv.querySelector('.photo-input');
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate size (3MB)
+                if (file.size > 3 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar! Maksimal 3MB');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                // Validate type
+                if (!file.type.match('image.*')) {
+                    alert('File harus berupa gambar!');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                // Show preview
+                const reader = new FileReader();
+                const previewDiv = photoDiv.querySelector(`.photo-preview-${photoCounter}`);
+                const previewImg = previewDiv.querySelector('img');
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewDiv.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Handle remove button
+        const removeBtn = photoDiv.querySelector('.remove-photo-btn');
+        removeBtn.addEventListener('click', function() {
+            photoDiv.remove();
+        });
+    });
+    
+    // Delete existing photo (AJAX)
+    document.querySelectorAll('.delete-existing-photo').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('Yakin ingin menghapus foto ini?')) {
+                return;
+            }
+            
+            const photoId = this.dataset.photoId;
+            const photoCard = document.getElementById(`existing-photo-${photoId}`);
+            
+            // Get CSRF token
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/inventory/api/photo/${photoId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    photoCard.remove();
+                } else {
+                    alert('Gagal menghapus foto: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal menghapus foto');
+            });
+        });
+    });
     
     // Handle main category change in form
     mainCategoryFormSelect.addEventListener('change', function() {

@@ -19,8 +19,15 @@ def item_detail_view(request, code):
         return render(request, 'inventory/item_not_found.html', {'code': code})
 
 def test_mobile_access(request):
-    """Simple test page for mobile access dengan IP detection"""
-    local_ip = get_local_ip()
+    """Simple test page for mobile access dengan auto-detected IP"""
+    from itdashboard.auto_ip import get_local_ip
+    
+    try:
+        local_ip = get_local_ip()
+        status = "✅ Auto-detected"
+    except Exception as e:
+        local_ip = "Error detecting IP"
+        status = f"❌ Error: {e}"
     
     html = f"""
     <!DOCTYPE html>
@@ -114,7 +121,8 @@ def test_mobile_access(request):
             <h1 class="success">✅ SERVER BERHASIL DIAKSES!</h1>
             <div class="info">
                 <div class="ip-info">
-                    <strong>🌐 IP Server: {local_ip}:9000</strong>
+                    <strong>🌐 IP Server: {local_ip}:9000</strong><br>
+                    <small>Status: {status}</small>
                 </div>
                 <p><strong>📱 Waktu Akses:</strong> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}</p>
                 <p><strong>🔍 User Agent:</strong><br><small>{request.META.get('HTTP_USER_AGENT', 'Unknown')}</small></p>
@@ -166,15 +174,13 @@ def get_local_ip():
 
 @login_required
 def generate_qr_code(request, equipment_id):
-    """Generate QR code dengan IP lokal otomatis"""
+    """Generate QR code dengan auto-detected IP"""
     try:
         equipment = Equipment.objects.get(id=equipment_id)
         
-        # Auto-detect IP lokal
-        local_ip = get_local_ip()
-        
-        # Create URL dengan IP lokal dinamis
-        item_url = f"http://{local_ip}:9000/item/{equipment.inventory_code}/"
+        # Auto-detect IP using our helper
+        from itdashboard.auto_ip import update_qr_code_with_current_ip
+        item_url = update_qr_code_with_current_ip(equipment.inventory_code)
         
         # Generate QR code
         qr = qrcode.QRCode(
@@ -196,8 +202,9 @@ def generate_qr_code(request, equipment_id):
         buffer.seek(0)
         
         # Return as download
+        current_ip = item_url.split('//')[1].split(':')[0]  # Extract IP from URL
         response = HttpResponse(buffer.getvalue(), content_type='image/png')
-        response['Content-Disposition'] = f'attachment; filename="QR-{equipment.inventory_code}-{local_ip}.png"'
+        response['Content-Disposition'] = f'attachment; filename="QR-{equipment.inventory_code}-{current_ip}.png"'
         
         return response
         

@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from PIL import Image
+from io import BytesIO
+import os
 
 class EquipmentCategory(models.Model):
     """Model untuk kategori peralatan yang bisa ditambah dinamis dengan hierarki"""
@@ -80,6 +84,7 @@ class Equipment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', db_index=True, verbose_name='Status')
     purchase_date = models.DateField(null=True, blank=True, verbose_name='Tanggal Pembelian')
     warranty_until = models.DateField(null=True, blank=True, verbose_name='Garansi Sampai')
+    photo = models.ImageField(upload_to='inventory/photos/', null=True, blank=True, verbose_name='Foto Barang')
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -163,3 +168,76 @@ class EquipmentDeletionLog(models.Model):
             attachment=attachment,
             deleted_by=deleted_by,
         )
+
+
+class EquipmentPhoto(models.Model):
+    """Model untuk menyimpan multiple photos per equipment"""
+    POSITION_CHOICES = [
+        ('front', 'Tampak Depan'),
+        ('back', 'Tampak Belakang'),
+        ('left', 'Tampak Kiri'),
+        ('right', 'Tampak Kanan'),
+        ('top', 'Tampak Atas'),
+        ('bottom', 'Tampak Bawah'),
+        ('detail', 'Detail/Close-up'),
+        ('other', 'Lainnya'),
+    ]
+    
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='photos', verbose_name='Peralatan')
+    image = models.ImageField(upload_to='inventory/photos/', verbose_name='Foto')
+    position = models.CharField(max_length=20, choices=POSITION_CHOICES, default='other', verbose_name='Posisi Foto')
+    caption = models.CharField(max_length=200, blank=True, verbose_name='Keterangan')
+    order = models.PositiveIntegerField(default=0, verbose_name='Urutan')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Foto Peralatan'
+        verbose_name_plural = 'Foto Peralatan'
+        ordering = ['equipment', 'order', 'uploaded_at']
+        indexes = [
+            models.Index(fields=['equipment', 'order'], name='equip_photo_order_idx'),
+        ]
+    
+    def __str__(self):
+        return f"{self.equipment.name} - {self.get_position_display()}"
+    
+    def save(self, *args, **kwargs):
+        # Compress dan resize image sebelum save
+        if self.image:
+            self.image = self.compress_image(self.image)
+        super().save(*args, **kwargs)
+    
+    def compress_image(self, image_field, max_width=1200, max_height=1200, quality=85):
+        """Compress dan resize image untuk hemat storage"""
+        try:
+            # Open image
+            img = Image.open(image_field)
+            
+            # Convert RGBA to RGB if necessary
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                img = background
+            
+            # Resize if too large
+            if img.width > max_width or img.height > max_height:
+                img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+            
+            # Save to BytesIO
+            output = BytesIO()
+            img_format = 'JPEG'
+            img.save(output, format=img_format, quality=quality, optimize=True)
+            output.seek(0)
+            
+            # Generate filename
+            original_name = os.path.splitext(image_field.name)[0]
+            new_name = f"{original_name}_compressed.jpg"
+            
+            # Return compressed image
+            return ContentFile(output.read(), name=new_name)
+        except Exception as e:
+            # If compression fails, return original
+            print(f"Image compression failed: {e}")
+            return image_field

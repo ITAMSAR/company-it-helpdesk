@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
-from .models import Equipment, EquipmentCategory, EquipmentDeletionLog
+from .models import Equipment, EquipmentCategory, EquipmentDeletionLog, EquipmentPhoto
 from apps.users.views import AdminRequiredMixin
 
 class EquipmentListView(LoginRequiredMixin, ListView):
@@ -73,13 +73,35 @@ class EquipmentCreateView(AdminRequiredMixin, CreateView):
     success_url = reverse_lazy('inventory:equipment_list')
     
     def form_valid(self, form):
-        messages.success(self.request, 'Peralatan berhasil ditambahkan!')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # Handle multiple photo uploads
+        photos = self.request.FILES.getlist('photos')
+        positions = self.request.POST.getlist('photo_positions')
+        captions = self.request.POST.getlist('photo_captions')
+        
+        for idx, photo in enumerate(photos):
+            position = positions[idx] if idx < len(positions) else 'other'
+            caption = captions[idx] if idx < len(captions) else ''
+            
+            EquipmentPhoto.objects.create(
+                equipment=self.object,
+                image=photo,
+                position=position,
+                caption=caption,
+                order=idx
+            )
+        
+        messages.success(self.request, f'Peralatan berhasil ditambahkan dengan {len(photos)} foto!')
+        return response
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = EquipmentCategory.objects.all()
         context['root_categories'] = EquipmentCategory.get_root_categories()
+        # Convert choices to JSON-safe format
+        import json
+        context['position_choices'] = json.dumps(EquipmentPhoto.POSITION_CHOICES)
         return context
 
 class EquipmentUpdateView(AdminRequiredMixin, UpdateView):
@@ -90,13 +112,42 @@ class EquipmentUpdateView(AdminRequiredMixin, UpdateView):
     success_url = reverse_lazy('inventory:equipment_list')
     
     def form_valid(self, form):
-        messages.success(self.request, 'Peralatan berhasil diupdate!')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # Handle multiple photo uploads
+        photos = self.request.FILES.getlist('photos')
+        positions = self.request.POST.getlist('photo_positions')
+        captions = self.request.POST.getlist('photo_captions')
+        
+        # Get existing photo count for order continuation
+        existing_count = self.object.photos.count()
+        
+        for idx, photo in enumerate(photos):
+            position = positions[idx] if idx < len(positions) else 'other'
+            caption = captions[idx] if idx < len(captions) else ''
+            
+            EquipmentPhoto.objects.create(
+                equipment=self.object,
+                image=photo,
+                position=position,
+                caption=caption,
+                order=existing_count + idx
+            )
+        
+        if photos:
+            messages.success(self.request, f'Peralatan berhasil diupdate! {len(photos)} foto baru ditambahkan.')
+        else:
+            messages.success(self.request, 'Peralatan berhasil diupdate!')
+        return response
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = EquipmentCategory.objects.all()
         context['root_categories'] = EquipmentCategory.get_root_categories()
+        # Convert choices to JSON-safe format
+        import json
+        context['position_choices'] = json.dumps(EquipmentPhoto.POSITION_CHOICES)
+        context['existing_photos'] = self.object.photos.all()
         return context
 
 class EquipmentDeleteView(AdminRequiredMixin, DeleteView):
@@ -193,6 +244,20 @@ def get_subcategories(request):
         data = [{'id': cat.id, 'name': cat.name} for cat in subcategories]
         return JsonResponse({'subcategories': data})
     return JsonResponse({'subcategories': []})
+
+@login_required
+@require_POST
+def delete_equipment_photo(request, photo_id):
+    """AJAX view untuk hapus foto equipment"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    try:
+        photo = EquipmentPhoto.objects.get(id=photo_id)
+        photo.delete()
+        return JsonResponse({'success': True})
+    except EquipmentPhoto.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Photo not found'}, status=404)
 
 def generate_qr_code(request, equipment_id):
     """Generate and download QR code image for equipment"""

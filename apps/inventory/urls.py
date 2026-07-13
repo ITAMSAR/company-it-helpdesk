@@ -24,6 +24,7 @@ urlpatterns = [
     
     # AJAX URLs
     path('api/subcategories/', views.get_subcategories, name='get_subcategories'),
+    path('api/photo/<int:photo_id>/delete/', views.delete_equipment_photo, name='delete_equipment_photo'),
     
     # Test mobile access
     path('test-mobile/', qr_views.test_mobile_access, name='test_mobile'),

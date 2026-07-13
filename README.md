@@ -1,176 +1,73 @@
-# IT Hub Internal - Dashboard Internal IT
+# 📦 IT Hub Inventory Management System
 
-Dashboard internal untuk manajemen IT yang mencakup manajemen email karyawan, inventaris peralatan, sistem tiketing, dan reminder pengecekan jaringan.
+Django inventory management dengan QR code scanning dan multiple photos.
 
-## ⚠️ PENTING: Cek Python Version Dulu!
-
-**Aplikasi ini butuh Python 3.8 - 3.12**
+## 🚀 Quick Setup
 
 ```bash
-python --version
+# 1. Run migrations
+python manage.py migrate inventory
+
+# 2. Start server
+python manage.py runserver 0.0.0.0:9000
+
+# 3. Access system
+# Web: http://localhost:9000/inventory/
+# Mobile test: http://192.168.100.89:9000/inventory/test-mobile/
 ```
 
-- ✅ Python 3.10, 3.11, 3.12 → **PERFECT!**
-- ⚠️ Python 3.14 → **Terlalu baru!** Install Python 3.11 atau 3.12
-- ❌ Python 3.7 atau lebih lama → **Upgrade Python**
+## ✨ Features
 
-**Download Python:** https://www.python.org/downloads/
+### Multiple Photos
+- Upload multiple photos per item
+- Positions: Depan, Belakang, Kiri, Kanan, Atas, Bawah, Detail
+- Auto-compress (~400KB per photo)
+- Gallery slider dengan swipe support
 
-## 🚀 Quick Start
+### QR Code System  
+- Auto-generate QR per item
+- Mobile scanning interface
+- Auto IP detection (no manual config)
 
-### Windows (Termudah):
-```bash
-# 1. Double-click:
-scripts\IT_DASHBOARD.bat
+### Inventory Management
+- Categories, status tracking
+- Bulk operations
+- Admin interface
 
-# 2. Untuk setup pertama kali, pilih menu:
-6
+## 📱 Usage
 
-# 3. Untuk menjalankan server, pilih menu:
-1
+**Upload Photos:**
+1. Create/edit item → Click "Tambah Foto"
+2. Select position & add caption
+3. Repeat for multiple photos
 
-# 4. Buka browser:
-http://127.0.0.1:9000
-```
+**QR Scanning:**
+1. Generate QR (green button)
+2. Scan dengan HP (same WiFi)
+3. View gallery dengan swipe
 
-### Manual:
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+## 🔧 Tech Stack
 
-# 2. Migrasi database (PENTING!)
-python manage.py makemigrations
-python manage.py migrate
+- Django 5.0, Python 3.11+
+- Pillow (image compression)
+- Bootstrap 5, JavaScript
+- Auto IP detection system
 
-# 3. Buat admin
-python manage.py createsuperuser
-# Password tidak terlihat saat diketik - ini normal!
+## 🌐 Network Setup
 
-# 4. Jalankan server
-python manage.py runserver
+System auto-detects IP untuk QR codes. For static IP:
 
-# 5. Buka browser
-http://127.0.0.1:9000
-```
+**Router DHCP Reservation (Recommended):**
+1. Get MAC: `ipconfig /all`
+2. Router admin → DHCP → Reservation
+3. Add MAC-to-IP mapping
 
-## 🌐 Akses dari Jaringan Lokal
+## 🐛 Troubleshooting
 
-Untuk akses dari laptop/device lain di jaringan yang sama:
-
-```bash
-# 1. Setup firewall (sekali saja, run as admin):
-scripts\IT_DASHBOARD.bat
-# lalu pilih menu 12
-
-# 2. Jalankan server dalam mode network:
-scripts\IT_DASHBOARD.bat
-# lalu pilih menu 2
-
-# 3. Akses dari device lain:
-http://[IP-ADDRESS-PC]:9000
-```
-
-Lihat **docs/NETWORK_ACCESS_GUIDE.md** untuk panduan lengkap.
-
-## 🎯 Fitur Utama
-
-1. **Manajemen Email Karyawan**
-   - Track email dengan password protection
-   - Password hanya bisa dilihat admin dengan verifikasi
-   - Export ke Excel (tanpa password)
-
-2. **Inventaris IT**
-   - Kategori dinamis (CPU, Laptop, Monitor, dll)
-   - Filter by kategori dan status
-   - Export ke Excel
-
-3. **Sistem Tiketing**
-   - User buat tiket, admin kelola
-   - Status: Baru, Sedang Dikerjakan, Selesai, Tidak Selesai
-   - Catatan untuk setiap perubahan status
-   - Export ke Excel
-
-4. **Reminder Jaringan**
-   - Pengingat cek jaringan harian
-   - Statistik pengecekan (hari ini, minggu ini, total)
-   - Filter riwayat
-   - Export ke Excel
-
-## 🔧 Troubleshooting
-
-### Error: "no such table"
-```bash
-python manage.py migrate
-# Atau: scripts\IT_DASHBOARD.bat
-```
-
-### Error: "Pillow failed to build"
-Python 3.14 terlalu baru. Solusi:
-1. Install Python 3.11 atau 3.12 (recommended)
-2. Atau: `pip install -r requirements-minimal.txt`
-
-### Password tidak terlihat saat buat admin
-Ini NORMAL untuk keamanan. Ketik saja (meskipun tidak terlihat) lalu Enter.
-
-### Port 9000 sudah dipakai
-```bash
-python manage.py runserver 8001
-```
-
-### Lupa password admin
-```bash
-python manage.py changepassword admin
-```
-
-### Tidak bisa akses dari laptop
-1. Pastikan firewall sudah di-setup (scripts\IT_DASHBOARD.bat as admin)
-2. Pastikan PC dan laptop di jaringan yang sama
-3. Pilih menu `2` untuk server network / LAN
-4. Lihat docs/NETWORK_ACCESS_GUIDE.md
-
-## 📚 Dokumentasi
-
-- **README.md** - Quick start & overview
-- **docs/QUICK_START.md** - Panduan instalasi detail
-- **docs/PANDUAN_PENGGUNAAN.md** - User manual lengkap
-- **docs/FAQ.md** - Pertanyaan umum
-- **docs/COMMON_ISSUES.md** - Masalah umum & solusi
-- **docs/DATABASE_MIGRATION_GUIDE.md** - Panduan update database
-- **docs/NETWORK_ACCESS_GUIDE.md** - Akses dari jaringan lokal
-
-## Tools
-
-Semua command Windows sekarang digabung di satu launcher:
-
-- `scripts\IT_DASHBOARD.bat` - menu setup, start server, migrate, user management, firewall, dan reset database
-
-## Dependencies
-
-- Django >= 5.0, < 5.1
-- Pillow >= 10.0
-- django-crontab >= 0.7.1
-- python-decouple >= 3.8
-- openpyxl >= 3.1.0
-
-## 📝 Teknologi
-
-- Django 5.0.1
-- Bootstrap 5
-- SQLite (development)
-- Python 3.8 - 3.12
-
-## 🔒 Keamanan
-
-- Password email terenkripsi
-- Admin password verification untuk lihat password
-- CSRF protection
-- Session-based authentication
-- Network access hanya untuk LAN (tidak untuk internet publik)
-
-## 📄 License
-
-MIT License - Gratis untuk digunakan dan dimodifikasi
+**QR tidak bisa diakses:** Check same WiFi, test `/inventory/test-mobile/`  
+**Upload gagal:** Max 3MB per photo, use JPG format  
+**IP berubah:** System auto-detects (no action needed)
 
 ---
 
-**Dibuat dengan ❤️ untuk Tim IT**
+**Version:** 2.0 | **Updated:** July 2026
