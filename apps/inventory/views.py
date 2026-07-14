@@ -514,3 +514,32 @@ def export_equipment_excel(request):
     
     equipment_list = Equipment.objects.select_related('category').all().order_by('-created_at')
     return _build_equipment_excel_response(equipment_list, filename_prefix='Inventaris_Peralatan')
+
+
+class DeletionLogListView(AdminRequiredMixin, ListView):
+    """Daftar log penghapusan aset inventaris"""
+    model = EquipmentDeletionLog
+    template_name = 'inventory/deletion_log.html'
+    context_object_name = 'log_list'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related('deleted_by')
+
+        search = self.request.GET.get('search')
+        if search:
+            queryset = (
+                queryset.filter(equipment_name__icontains=search)
+                | queryset.filter(inventory_code__icontains=search)
+                | queryset.filter(reason__icontains=search)
+            )
+
+        date_from = self.request.GET.get('date_from')
+        if date_from:
+            queryset = queryset.filter(deleted_at__date__gte=date_from)
+
+        date_to = self.request.GET.get('date_to')
+        if date_to:
+            queryset = queryset.filter(deleted_at__date__lte=date_to)
+
+        return queryset
