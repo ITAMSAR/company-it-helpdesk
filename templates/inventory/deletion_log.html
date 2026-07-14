@@ -38,6 +38,7 @@
                 <th>Alasan</th>
                 <th class="text-center">Lampiran</th>
                 <th>Dihapus Oleh</th>
+                <th class="text-center">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -68,9 +69,33 @@
                     {% endif %}
                 </td>
                 <td>{{ log.deleted_by|default:"-" }}</td>
+                <td class="text-center">
+                    <div class="d-flex gap-1 justify-content-center">
+                        <button type="button" class="btn btn-sm btn-info btn-log-detail"
+                                data-code="{{ log.inventory_code }}"
+                                data-name="{{ log.equipment_name }}"
+                                data-category="{{ log.category_name }}"
+                                data-status="{{ log.status }}"
+                                data-user="{{ log.current_user|default:'-' }}"
+                                data-location="{{ log.location|default:'-' }}"
+                                data-reason="{{ log.reason }}"
+                                data-deleted-by="{{ log.deleted_by|default:'-' }}"
+                                data-deleted-at="{{ log.deleted_at|date:'d M Y H:i' }}"
+                                data-attachment="{% if log.attachment %}{{ log.attachment.url }}{% endif %}"
+                                title="Detail">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-delete-item"
+                                data-item-name="Log {{ log.inventory_code }} - {{ log.equipment_name }}"
+                                data-delete-url="{% url 'inventory:deletion_log_delete' log.pk %}"
+                                title="Hapus log">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
             </tr>
             {% empty %}
-            <tr><td colspan="9" class="text-center py-4">
+            <tr><td colspan="10" class="text-center py-4">
                 <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
                 <span class="text-muted">Belum ada log penghapusan</span>
             </td></tr>
@@ -107,4 +132,66 @@
     </ul>
     {% endif %}
 </div>
+
+<!-- Detail Log Modal -->
+<div class="modal fade" id="logDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>Detail Log Penghapusan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><small class="text-muted d-block">Kode Inventaris</small><code style="color:#e91e63;font-weight:bold;" id="ldCode"></code></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Nama Barang</small><strong id="ldName"></strong></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Kategori</small><span id="ldCategory"></span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Status Terakhir</small><span id="ldStatus"></span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Pengguna Terakhir</small><span id="ldUser"></span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Lokasi Terakhir</small><span id="ldLocation"></span></div>
+                    <div class="col-12"><small class="text-muted d-block">Alasan Penghapusan</small><p class="mb-0" id="ldReason" style="white-space:pre-wrap;"></p></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Dihapus Oleh</small><span id="ldDeletedBy"></span></div>
+                    <div class="col-md-6"><small class="text-muted d-block">Tanggal</small><span id="ldDeletedAt"></span></div>
+                    <div class="col-12" id="ldAttachmentWrap" style="display:none;">
+                        <small class="text-muted d-block">Lampiran</small>
+                        <a href="#" id="ldAttachment" target="_blank" class="btn btn-sm btn-outline-primary mt-1">
+                            <i class="bi bi-paperclip"></i> Buka Lampiran
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('logDetailModal');
+    document.querySelectorAll('.btn-log-detail').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const d = this.dataset;
+            document.getElementById('ldCode').textContent = d.code;
+            document.getElementById('ldName').textContent = d.name;
+            document.getElementById('ldCategory').textContent = d.category;
+            document.getElementById('ldStatus').textContent = d.status;
+            document.getElementById('ldUser').textContent = d.user;
+            document.getElementById('ldLocation').textContent = d.location;
+            document.getElementById('ldReason').textContent = d.reason;
+            document.getElementById('ldDeletedBy').textContent = d.deletedBy;
+            document.getElementById('ldDeletedAt').textContent = d.deletedAt;
+            const wrap = document.getElementById('ldAttachmentWrap');
+            if (d.attachment) {
+                wrap.style.display = '';
+                document.getElementById('ldAttachment').href = d.attachment;
+            } else {
+                wrap.style.display = 'none';
+            }
+            new bootstrap.Modal(modalEl).show();
+        });
+    });
+});
+</script>
 {% endblock %}

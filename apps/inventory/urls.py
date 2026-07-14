@@ -13,6 +13,7 @@ urlpatterns = [
     path('bulk-action/', views.bulk_equipment_action, name='bulk_equipment_action'),
     path('export/', views.export_equipment_excel, name='export_equipment'),
     path('deletion-log/', views.DeletionLogListView.as_view(), name='deletion_log'),
+    path('deletion-log/<int:pk>/delete/', views.delete_deletion_log, name='deletion_log_delete'),
     
     # QR Code Generation (login required)
     path('qr/<int:equipment_id>/', qr_views.generate_qr_code, name='generate_qr'),

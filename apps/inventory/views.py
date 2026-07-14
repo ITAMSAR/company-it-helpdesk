@@ -543,3 +543,22 @@ class DeletionLogListView(AdminRequiredMixin, ListView):
             queryset = queryset.filter(deleted_at__date__lte=date_to)
 
         return queryset
+
+
+@login_required
+def delete_deletion_log(request, pk):
+    """Hapus satu entri log penghapusan (untuk bersih-bersih data testing)"""
+    if not request.user.is_staff:
+        messages.error(request, 'Anda tidak memiliki akses!')
+        return redirect('inventory:deletion_log')
+    if request.method == 'POST':
+        log = EquipmentDeletionLog.objects.filter(pk=pk).first()
+        if log:
+            code = log.inventory_code
+            if log.attachment:
+                log.attachment.delete(save=False)
+            log.delete()
+            messages.success(request, f'Log {code} berhasil dihapus.')
+        else:
+            messages.error(request, 'Log tidak ditemukan.')
+    return redirect('inventory:deletion_log')
