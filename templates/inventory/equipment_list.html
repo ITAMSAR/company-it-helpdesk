@@ -396,17 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
         justify-content: space-between;
         gap: 1rem;
         padding: 1rem;
-        border: 1px solid #dbe5ef;
+        border: 1px solid var(--border);
         border-radius: 8px;
-        background: #ffffff;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-    }
-
-    @media (max-width: 768px) {
-        .bulk-inventory-toolbar {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-    }
-</style>
-{% endblock %}
+        background: var(--surface);
+        box-shadow: var(--shad
