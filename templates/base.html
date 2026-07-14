@@ -630,3 +630,68 @@
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(alert);
                     alert.style.transition = 'all 0.5s';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(400px)';
+                    setTimeout(function() {
+                        bsAlert.close();
+                    }, 500);
+                }, 5000);
+            });
+
+            // Auto-show toast for Django messages
+            const messagesContainer = document.getElementById('django-messages');
+            if (messagesContainer) {
+                const messageElements = messagesContainer.querySelectorAll('[data-message]');
+                messageElements.forEach(function(el) {
+                    const message = el.getAttribute('data-message');
+                    const tags = el.getAttribute('data-tags');
+                    showToast(message, tags);
+                });
+            }
+        });
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        // Show toast notification function
+        function showToast(message, type) {
+            type = type || 'success';
+            const toastContainer = document.querySelector('.toast-container');
+            const toastId = 'toast-' + Date.now();
+
+            const icons = {
+                success: 'check-circle-fill',
+                error: 'exclamation-triangle-fill',
+                danger: 'exclamation-triangle-fill',
+                warning: 'exclamation-circle-fill',
+                info: 'info-circle-fill'
+            };
+
+            const toastHTML = `
+                <div id="${toastId}" class="toast toast-${type}" role="alert">
+                    <div class="toast-header">
+                        <i class="bi bi-${icons[type] || icons.info} me-2"></i>
+                        <strong class="me-auto">Notifikasi</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${escapeHtml(message)}
+                    </div>
+                </div>
+            `;
+
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+            toast.show();
+
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+        }
+    </script>
+</body>
+</html>
